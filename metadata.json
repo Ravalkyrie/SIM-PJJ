@@ -1,0 +1,6 @@
+{
+  "name": "Manajemen Kontrak Bina Marga PUPR",
+  "description": "Aplikasi manajemen, pengarsipan, dan pemantauan dokumen kontrak pekerjaan fisik di bidang Bina Marga Dinas Pekerjaan Umum dan Penataan Ruang (PUPR) Provinsi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
