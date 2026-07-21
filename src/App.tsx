@@ -4,6 +4,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { db } from "./firebase";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS } from './types';
 import { INITIAL_KONTRAK } from './data/mockData';
 import DashboardView from './components/DashboardView';
@@ -99,38 +101,24 @@ export default function App() {
 
   // Load contracts and logs from localStorage
   useEffect(() => {
-    const wasReset = localStorage.getItem('pupr_contracts_wipe_v3');
-    if (!wasReset) {
-      // Clear all contracts and logs as requested by user
-      localStorage.setItem('pupr_contracts', JSON.stringify([]));
-      localStorage.setItem('pupr_activity_logs', JSON.stringify([]));
-      localStorage.setItem('pupr_contracts_wipe_v3', 'true');
-      setContracts([]);
-      setActivityLogs([]);
-    } else {
-      const stored = localStorage.getItem('pupr_contracts');
-      let loadedContracts: KontrakFisik[] = [];
-      if (stored) {
-        try {
-          loadedContracts = JSON.parse(stored);
-          setContracts(loadedContracts);
-        } catch (e) {
-          console.error("Error loading contracts", e);
-          setContracts([]);
-        }
-      }
+  const loadContracts = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "kontrak"));
 
-      const storedLogs = localStorage.getItem('pupr_activity_logs');
-      if (storedLogs) {
-        try {
-          setActivityLogs(JSON.parse(storedLogs));
-        } catch (e) {
-          console.error("Error loading activity logs", e);
-          setActivityLogs([]);
-        }
-      }
+      const data = snapshot.docs.map(doc => ({
+        ...doc.data(),
+      })) as KontrakFisik[];
+
+      setContracts(data);
+
+      console.log("Berhasil mengambil", data.length, "kontrak");
+    } catch (error) {
+      console.error("Gagal mengambil data:", error);
     }
-  }, []);
+  };
+
+  loadContracts();
+}, []);
 
   // Helper to add activity logs
   const addLog = (
@@ -229,7 +217,7 @@ export default function App() {
   };
 
   // Save new/edited contract
-  const handleSaveContract = (saved: KontrakFisik) => {
+  const handleSaveContract = async (saved: KontrakFisik) => {
     let updated: KontrakFisik[];
     if (contractToEdit) {
       // Editing
@@ -242,6 +230,16 @@ export default function App() {
       addLog('CREATE', saved, `Melakukan penginputan dan pendaftaran berkas kontrak baru "${saved.namaPaket}" senilai Rp ${saved.nilaiKontrak.toLocaleString('id-ID')}`);
     }
     saveContracts(updated);
+	try {
+  await addDoc(collection(db, "kontrak"), {
+    ...saved,
+    createdAt: new Date().toISOString(),
+  });
+
+  console.log("Data berhasil dikirim ke Firestore");
+} catch (error) {
+  console.error("Gagal kirim ke Firestore:", error);
+}
     setSelectedContractId(saved.id);
     setActiveTab('detail');
   };
