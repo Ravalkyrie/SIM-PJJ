@@ -267,7 +267,7 @@ export default function App() {
   };
 
   // Quick Progress Updates from Details page
-  const handleUpdateProgress = (
+  const handleUpdateProgress = async (
     id: string, 
     progresFisik: number, 
     progresKeuangan: number, 
@@ -288,13 +288,18 @@ export default function App() {
       return c;
     });
     saveContracts(updated);
+	const updatedContract = updated.find(c => c.id === id);
+
+if (updatedContract) {
+  await setDoc(doc(db, "kontrak", id), updatedContract);
+}
     if (found) {
       addLog('UPDATE_PROGRESS', found, `Memutakhirkan progres fisik menjadi ${progresFisik}%, keuangan menjadi ${progresKeuangan}%, dan status pekerjaan menjadi "${status}"`);
     }
   };
 
-  // Add Adendum
-  const handleAddAdendum = (id: string, adendumOmit: Omit<AdendumKontrak, 'id'>) => {
+  // Add Adendum	
+  const handleAddAdendum = async (id: string, adendumOmit: Omit<AdendumKontrak, 'id'>) => {
     const newAdendum: AdendumKontrak = {
       ...adendumOmit,
       id: `ADD-${Date.now()}`
@@ -336,13 +341,26 @@ export default function App() {
     });
 
     saveContracts(updated);
+	const updatedContract = updated.find(c => c.id === id);
+
+if (updatedContract) {
+  try {
+    await setDoc(
+      doc(db, "kontrak", id),
+      updatedContract
+    );
+    console.log("Adendum berhasil disimpan ke Firestore");
+  } catch (error) {
+    console.error("Gagal menyimpan adendum:", error);
+  }
+}
     if (found) {
       addLog('ADD_ADENDUM', found, `Menambahkan adendum kontrak baru No: ${adendumOmit.noAdendum} dengan alasan: "${adendumOmit.keterangan}"`);
     }
   };
 
   // Add Attachment
-  const handleAddLampiran = (id: string, lampiranOmit: Omit<DokumenLampiran, 'id'>) => {
+  const handleAddLampiran = async (id: string, lampiranOmit: Omit<DokumenLampiran, 'id'>) => {
     const newLampiran: DokumenLampiran = {
       ...lampiranOmit,
       id: `LAMP-${Date.now()}`
@@ -360,13 +378,26 @@ export default function App() {
     });
 
     saveContracts(updated);
+	const updatedContract = updated.find(c => c.id === id);
+
+if (updatedContract) {
+  try {
+    await setDoc(
+      doc(db, "kontrak", id),
+      updatedContract
+    );
+    console.log("Lampiran berhasil disimpan ke Firestore");
+  } catch (error) {
+    console.error("Gagal menyimpan lampiran:", error);
+  }
+}
     if (found) {
       addLog('ADD_LAMPIRAN', found, `Mengunggah dokumen lampiran baru "${lampiranOmit.namaFile}" (${lampiranOmit.tipeDokumen})`);
     }
   };
 
   // Delete Attachment
-  const handleDeleteLampiran = (id: string, lampiranId: string) => {
+  const handleDeleteLampiran = async (id: string, lampiranId: string) => {
     const found = contracts.find(c => c.id === id);
     const lamp = found?.lampiran.find(l => l.id === lampiranId);
     const updated = contracts.map(c => {
@@ -380,6 +411,19 @@ export default function App() {
     });
 
     saveContracts(updated);
+	const updatedContract = updated.find(c => c.id === id);
+
+if (updatedContract) {
+  try {
+    await setDoc(
+      doc(db, "kontrak", id),
+      updatedContract
+    );
+    console.log("Penghapusan lampiran berhasil disimpan");
+  } catch (error) {
+    console.error(error);
+  }
+}
     if (found && lamp) {
       addLog('DELETE_LAMPIRAN', found, `Menghapus berkas lampiran "${lamp.namaFile}" dari berkas kontrak`);
     }
