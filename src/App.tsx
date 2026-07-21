@@ -5,7 +5,14 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { db } from "./firebase";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS } from './types';
 import { INITIAL_KONTRAK } from './data/mockData';
 import DashboardView from './components/DashboardView';
@@ -105,9 +112,10 @@ export default function App() {
     try {
       const snapshot = await getDocs(collection(db, "kontrak"));
 
-      const data = snapshot.docs.map(doc => ({
-        ...doc.data(),
-      })) as KontrakFisik[];
+      const data = snapshot.docs.map((docSnap) => ({
+    firestoreId: docSnap.id,
+    ...docSnap.data(),
+})) as KontrakFisik[];
 
       setContracts(data);
 
@@ -173,16 +181,27 @@ export default function App() {
   };
 
   // Delete Contract
-  const handleDeleteContract = (id: string) => {
-    const found = contracts.find(c => c.id === id);
-    const updated = contracts.filter(c => c.id !== id);
-    saveContracts(updated);
-    if (found) {
-      addLog('DELETE', found, `Menghapus berkas kontrak "${found.namaPaket}"`);
+  const handleDeleteContract = async (id: string) => {
+  if (!confirm("Apakah Anda yakin ingin menghapus kontrak ini?")) return;
+
+  try {
+    const contract = contracts.find((c) => c.id === id);
+
+    if (!contract?.firestoreId) {
+      alert("Firestore ID tidak ditemukan");
+      return;
     }
-    setSelectedContractId(null);
-    setActiveTab('list');
-  };
+
+    await deleteDoc(doc(db, "kontrak", contract.firestoreId));
+
+    setContracts((prev) => prev.filter((c) => c.id !== id));
+
+    alert("Kontrak berhasil dihapus.");
+  } catch (error) {
+    console.error("Gagal menghapus kontrak:", error);
+    alert("Gagal menghapus kontrak.");
+  }
+};
 
   // Delete All Contracts
   const handleDeleteAllContracts = () => {
@@ -215,7 +234,7 @@ export default function App() {
     setSelectedContractId(null);
     setActiveTab('list');
   };
-
+  
   // Save new/edited contract
   const handleSaveContract = async (saved: KontrakFisik) => {
     let updated: KontrakFisik[];
@@ -231,10 +250,13 @@ export default function App() {
     }
     saveContracts(updated);
 	try {
-  await addDoc(collection(db, "kontrak"), {
+  await setDoc(
+  doc(db, "kontrak", saved.id),
+  {
     ...saved,
     createdAt: new Date().toISOString(),
-  });
+  }
+);
 
   console.log("Data berhasil dikirim ke Firestore");
 } catch (error) {
