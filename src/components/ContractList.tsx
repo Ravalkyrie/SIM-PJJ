@@ -272,6 +272,11 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                         <p className="font-mono text-[11px] text-slate-600 font-bold line-clamp-1 group-hover:text-amber-600 transition-colors">
                           {contract.noKontrak}
                         </p>
+                        {contract.nomorSpmk && (
+                          <p className="font-mono text-[10px] text-slate-500 line-clamp-1 italic">
+                            SPMK: {contract.nomorSpmk}
+                          </p>
+                        )}
                         <div className="flex items-center gap-1 flex-wrap">
                           <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
                             TA {contract.tahunAnggaran}
@@ -282,6 +287,11 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                           {contract.kegiatanPreservasi && (
                             <span className="text-[9px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-100">
                               {contract.kegiatanPreservasi}
+                            </span>
+                          )}
+                          {contract.waktuPemeliharaan && (
+                            <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-100">
+                              🔧 {contract.waktuPemeliharaan}
                             </span>
                           )}
                         </div>
@@ -422,9 +432,16 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                   className="p-4 space-y-2 hover:bg-slate-50/70 transition cursor-pointer"
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <span className="text-[10px] font-mono text-slate-500 truncate max-w-[70%] font-bold">
-                      {contract.noKontrak}
-                    </span>
+                    <div className="space-y-0.5 flex-1 min-w-0">
+                      <span className="text-[10px] font-mono text-slate-500 truncate block font-bold">
+                        {contract.noKontrak}
+                      </span>
+                      {contract.nomorSpmk && (
+                        <span className="text-[9px] font-mono text-slate-400 block italic">
+                          SPMK: {contract.nomorSpmk}
+                        </span>
+                      )}
+                    </div>
                     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${statusColors[contract.status]}`}>
                       {contract.status.toUpperCase()}
                     </span>

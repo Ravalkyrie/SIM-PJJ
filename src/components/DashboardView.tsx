@@ -76,42 +76,74 @@ export default function DashboardView({ contracts, onSelectContract, onNavigateT
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner */}
-      <div id="welcome-banner" className="bg-slate-900 rounded-lg p-6 text-white border border-slate-800 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-          {/* Logo PUPR */}
-          <div className="w-16 h-16 bg-white/10 p-1.5 rounded-lg flex items-center justify-center shrink-0 border border-slate-700 shadow-inner">
-            <img 
-              src="https://images.seeklogo.com/logo-png/35/1/pu-logo-png_seeklogo-355609.png" 
-              alt="Logo PU" 
-              className="w-13 h-13 object-contain"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <div className="text-center sm:text-left space-y-1.5">
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white leading-snug" title="Sistem Informasi Monitoring Pembangunan Jalan dan Jembatan">
-              SIM-KONTRAK PJJ
-            </h1>
-            <p className="text-slate-400 text-xs max-w-2xl leading-relaxed text-justify">
-              Sistem Informasi Monitoring Kontrak Pembangunan Jalan dan Jembatan adalah sistem informasi berbasis web yang menyediakan layanan penyimpanan dan penyajian dokumen kontrak pekerjaan fisik secara digital. Sistem ini dirancang agar dokumen yang masih aktif mudah diakses, proses monitoring lebih efektif, terintegrasi, dan mendukung pengelolaan kontrak secara transparan, efisien, dan akuntabel.
-            </p>
-          </div>
+      {/* Professional PUPR Header Banner */}
+      <div id="welcome-banner" className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-xl shadow-2xl border border-slate-700/50">
+        {/* Decorative Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
         </div>
-        <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
-          <button
-            id="btn-nav-list"
-            onClick={() => onNavigateToTab('list')}
-            className="flex-1 sm:flex-none px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded text-xs font-semibold border border-slate-700 transition cursor-pointer"
-          >
-            Daftar Kontrak
-          </button>
-          <button
-            id="btn-nav-input"
-            onClick={() => onNavigateToTab('input')}
-            className="flex-1 sm:flex-none px-3.5 py-1.5 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-slate-950 rounded text-xs font-bold shadow-sm transition cursor-pointer"
-          >
-            + Input Kontrak Baru
-          </button>
+        
+        {/* Golden Top Border Accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500"></div>
+        
+        <div className="relative p-6 lg:p-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            {/* Left Section: Logo & Title */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 flex-1">
+              {/* Logo PUPR with Premium Styling */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl blur-sm group-hover:blur-md transition-all duration-300 opacity-70"></div>
+                <div className="relative w-20 h-20 bg-white p-2 rounded-2xl flex items-center justify-center shadow-xl border-2 border-yellow-400/30 group-hover:scale-105 transition-transform duration-300">
+                  <img 
+                    src="https://images.seeklogo.com/logo-png/35/1/pu-logo-png_seeklogo-355609.png" 
+                    alt="Logo PUPR" 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              </div>
+              
+              {/* Title & Description */}
+              <div className="text-center sm:text-left space-y-3 flex-1">
+                <div className="space-y-1">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight drop-shadow-lg" 
+                      title="Sistem Informasi Monitoring Kontrak Pembangunan Jalan dan Jembatan">
+                    SIM-KONTRAK PJJ
+                  </h1>
+                  <p className="text-yellow-300 text-sm font-semibold tracking-wide drop-shadow-md">
+                    Monitoring Jalan dan Jembatan
+                  </p>
+                </div>
+                
+                <p className="text-blue-100 text-sm max-w-3xl leading-relaxed hidden sm:block">
+                  <span className="font-semibold text-white">Sistem Informasi Monitoring Kontrak Pembangunan Jalan dan Jembatan</span> adalah sistem informasi berbasis web yang 
+                  menyediakan layanan penyimpanan dan penyajian dokumen kontrak pekerjaan fisik secara digital. Sistem ini dirancang agar 
+                  dokumen yang masih aktif mudah diakses, proses monitoring lebih efektif, terintegrasi, dan mendukung pengelolaan kontrak 
+                  secara <span className="text-yellow-200 font-semibold">transparan, efisien, dan akuntabel</span>.
+                </p>
+              </div>
+            </div>
+            
+            {/* Right Section: Action Buttons */}
+            <div className="flex gap-3 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
+              <button
+                id="btn-nav-list"
+                onClick={() => onNavigateToTab('list')}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-white/10 hover:bg-white/20 active:bg-white/5 text-white rounded-lg text-sm font-semibold border border-white/20 hover:border-white/30 transition-all duration-200 backdrop-blur-sm shadow-lg"
+              >
+                📋 Daftar Kontrak
+              </button>
+              <button
+                id="btn-nav-input"
+                onClick={() => onNavigateToTab('input')}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 active:from-yellow-600 active:to-yellow-700 text-blue-900 rounded-lg text-sm font-bold shadow-xl hover:shadow-2xl transition-all duration-200 border border-yellow-300"
+              >
+                ✨ Input Kontrak Baru
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

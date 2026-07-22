@@ -13,6 +13,7 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
+import { User } from 'firebase/auth';
 import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS } from './types';
 import { INITIAL_KONTRAK } from './data/mockData';
 import DashboardView from './components/DashboardView';
@@ -20,6 +21,8 @@ import ContractList from './components/ContractList';
 import ContractDetail from './components/ContractDetail';
 import ContractForm from './components/ContractForm';
 import ActivityLogView from './components/ActivityLogView';
+import LoginPage from './components/LoginPage';
+import { loginUser, logoutUser, onAuthChange } from './lib/auth';
 import { 
   Building2, 
   LayoutDashboard, 
@@ -30,7 +33,8 @@ import {
   Calendar,
   Layers,
   Map,
-  History
+  History,
+  LogOut
 } from 'lucide-react';
 
 const generateSeedLogs = (contractsList: KontrakFisik[]): ActivityLog[] => {
@@ -95,6 +99,12 @@ const generateSeedLogs = (contractsList: KontrakFisik[]): ActivityLog[] => {
 };
 
 export default function App() {
+  // Authentication State
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   // Master State
   const [contracts, setContracts] = useState<KontrakFisik[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
@@ -105,31 +115,105 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>('Semua');
   const [selectedRegion, setSelectedRegion] = useState<string>('Semua');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load contracts and logs from localStorage
+  // Listen to auth state changes
   useEffect(() => {
-  const loadContracts = async () => {
+    const unsubscribe = onAuthChange((currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+      if (currentUser) {
+        console.log('✅ User logged in:', currentUser.email);
+      } else {
+        console.log('⚠️ No user logged in');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Handle Login
+  const handleLogin = async (email: string, password: string) => {
+    setLoginLoading(true);
+    setLoginError(null);
+    
     try {
-      const snapshot = await getDocs(collection(db, "kontrak"));
-
-      const data = snapshot.docs.map((docSnap) => ({
-    firestoreId: docSnap.id,
-    ...docSnap.data(),
-})) as KontrakFisik[];
-
-      setContracts(data);
-
-      console.log("Berhasil mengambil", data.length, "kontrak");
-    } catch (error) {
-      console.error("Gagal mengambil data:", error);
+      const loggedInUser = await loginUser(email, password);
+      setUser(loggedInUser);
+    } catch (error: any) {
+      setLoginError(error.message);
+      throw error;
+    } finally {
+      setLoginLoading(false);
     }
   };
 
-  loadContracts();
-}, []);
+  // Handle Logout
+  const handleLogout = async () => {
+    if (!confirm('Apakah Anda yakin ingin keluar dari sistem?')) return;
+    
+    try {
+      await logoutUser();
+      setUser(null);
+      setContracts([]);
+      setActivityLogs([]);
+      setActiveTab('dashboard');
+      console.log('✅ Logout berhasil');
+    } catch (error: any) {
+      console.error('❌ Logout gagal:', error);
+      alert('Gagal logout: ' + error.message);
+    }
+  };
 
-  // Helper to add activity logs
-  const addLog = (
+  // Load contracts from Firestore
+  useEffect(() => {
+    const loadContracts = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const snapshot = await getDocs(collection(db, "kontrak"));
+
+        const data = snapshot.docs.map((docSnap) => ({
+          firestoreId: docSnap.id,
+          ...docSnap.data(),
+        })) as KontrakFisik[];
+
+        setContracts(data);
+        console.log("✅ Berhasil mengambil", data.length, "kontrak dari Firestore");
+      } catch (error: any) {
+        console.error("❌ Gagal mengambil data:", error);
+        setError(error.message || "Gagal memuat data kontrak");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadContracts();
+  }, []);
+
+  // Load activity logs from Firestore
+  useEffect(() => {
+    const loadLogs = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "activity_logs"));
+        const data = snapshot.docs.map((docSnap) => ({
+          ...docSnap.data(),
+        })) as ActivityLog[];
+        
+        setActivityLogs(data.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+        console.log("✅ Berhasil mengambil", data.length, "log aktivitas");
+      } catch (error) {
+        console.error("⚠️ Gagal mengambil log aktivitas:", error);
+        // Non-critical, just log the error
+      }
+    };
+
+    loadLogs();
+  }, []);
+
+  // Helper to add activity logs to Firestore
+  const addLog = async (
     actionType: ActivityLog['actionType'],
     contract: { id: string; noKontrak: string; namaPaket: string },
     description: string
@@ -151,17 +235,15 @@ export default function App() {
       operator: 'Admin Dinas'
     };
 
-    setActivityLogs(prev => {
-      const updated = [newLog, ...prev];
-      localStorage.setItem('pupr_activity_logs', JSON.stringify(updated));
-      return updated;
-    });
-  };
+    setActivityLogs(prev => [newLog, ...prev]);
 
-  // Save contracts utility
-  const saveContracts = (updated: KontrakFisik[]) => {
-    setContracts(updated);
-    localStorage.setItem('pupr_contracts', JSON.stringify(updated));
+    // Save to Firestore
+    try {
+      await addDoc(collection(db, "activity_logs"), newLog);
+      console.log("✅ Log aktivitas disimpan ke Firestore");
+    } catch (error) {
+      console.error("⚠️ Gagal menyimpan log:", error);
+    }
   };
 
   // Select a contract to view details
@@ -182,88 +264,66 @@ export default function App() {
 
   // Delete Contract
   const handleDeleteContract = async (id: string) => {
-  if (!confirm("Apakah Anda yakin ingin menghapus kontrak ini?")) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus kontrak ini?")) return;
 
-  try {
-    const contract = contracts.find((c) => c.id === id);
+    try {
+      const contract = contracts.find((c) => c.id === id);
 
-    if (!contract?.firestoreId) {
-      alert("Firestore ID tidak ditemukan");
-      return;
+      if (!contract) {
+        alert("Kontrak tidak ditemukan");
+        return;
+      }
+
+      // Delete from Firestore
+      await deleteDoc(doc(db, "kontrak", contract.firestoreId || id));
+
+      // Update local state
+      setContracts((prev) => prev.filter((c) => c.id !== id));
+
+      // Log the deletion
+      await addLog('DELETE', contract, `Menghapus berkas kontrak "${contract.namaPaket}" dari sistem`);
+
+      // Redirect to list if currently viewing this contract
+      if (selectedContractId === id) {
+        setSelectedContractId(null);
+        setActiveTab('list');
+      }
+
+      console.log("✅ Kontrak berhasil dihapus");
+    } catch (error) {
+      console.error("❌ Gagal menghapus kontrak:", error);
+      alert("Gagal menghapus kontrak");
     }
-
-    await deleteDoc(doc(db, "kontrak", contract.firestoreId));
-
-    setContracts((prev) => prev.filter((c) => c.id !== id));
-
-    alert("Kontrak berhasil dihapus.");
-  } catch (error) {
-    console.error("Gagal menghapus kontrak:", error);
-    alert("Gagal menghapus kontrak.");
-  }
-};
-
-  // Delete All Contracts
-  const handleDeleteAllContracts = () => {
-    saveContracts([]);
-    
-    // Log the mass deletion
-    const formatTime = () => {
-      const now = new Date();
-      const pad = (n: number) => n.toString().padStart(2, '0');
-      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    };
-
-    const newLog: ActivityLog = {
-      id: `LOG-${Date.now()}`,
-      timestamp: formatTime(),
-      actionType: 'DELETE',
-      contractId: 'ALL',
-      contractNo: 'ALL',
-      contractName: 'Semua Kontrak',
-      description: 'Menghapus seluruh berkas data kontrak yang ada di dalam sistem secara permanen',
-      operator: 'Admin Dinas'
-    };
-
-    setActivityLogs(prev => {
-      const updated = [newLog, ...prev];
-      localStorage.setItem('pupr_activity_logs', JSON.stringify(updated));
-      return updated;
-    });
-
-    setSelectedContractId(null);
-    setActiveTab('list');
   };
   
   // Save new/edited contract
   const handleSaveContract = async (saved: KontrakFisik) => {
-    let updated: KontrakFisik[];
-    if (contractToEdit) {
-      // Editing
-      updated = contracts.map(c => c.id === saved.id ? saved : c);
-      setContractToEdit(null);
-      addLog('UPDATE', saved, `Mengubah rincian data berkas kontrak "${saved.namaPaket}"`);
-    } else {
-      // Inserting new
-      updated = [saved, ...contracts];
-      addLog('CREATE', saved, `Melakukan penginputan dan pendaftaran berkas kontrak baru "${saved.namaPaket}" senilai Rp ${saved.nilaiKontrak.toLocaleString('id-ID')}`);
-    }
-    saveContracts(updated);
-	try {
-  await setDoc(
-  doc(db, "kontrak", saved.id),
-  {
-    ...saved,
-    createdAt: new Date().toISOString(),
-  }
-);
+    try {
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", saved.id), {
+        ...saved,
+        createdAt: new Date().toISOString(),
+      });
 
-  console.log("Data berhasil dikirim ke Firestore");
-} catch (error) {
-  console.error("Gagal kirim ke Firestore:", error);
-}
-    setSelectedContractId(saved.id);
-    setActiveTab('detail');
+      // Update local state
+      if (contractToEdit) {
+        // Editing
+        setContracts(contracts.map((c: KontrakFisik) => c.id === saved.id ? saved : c));
+        setContractToEdit(null);
+        await addLog('UPDATE', saved, `Mengubah rincian data berkas kontrak "${saved.namaPaket}"`);
+      } else {
+        // Inserting new
+        setContracts([saved, ...contracts]);
+        await addLog('CREATE', saved, `Melakukan penginputan dan pendaftaran berkas kontrak baru "${saved.namaPaket}" senilai Rp ${saved.nilaiKontrak.toLocaleString('id-ID')}`);
+      }
+
+      console.log("✅ Data berhasil disimpan ke Firestore");
+      setSelectedContractId(saved.id);
+      setActiveTab('detail');
+    } catch (error) {
+      console.error("❌ Gagal menyimpan ke Firestore:", error);
+      alert("Gagal menyimpan kontrak");
+    }
   };
 
   // Quick Progress Updates from Details page
@@ -274,158 +334,154 @@ export default function App() {
     status: KontrakFisik['status'],
     catatan: string
   ) => {
-    const found = contracts.find(c => c.id === id);
-    const updated = contracts.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          progresFisik,
-          progresKeuangan,
-          status,
-          catatanPekerjaan: catatan
-        };
-      }
-      return c;
-    });
-    saveContracts(updated);
-	const updatedContract = updated.find(c => c.id === id);
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
 
-if (updatedContract) {
-  await setDoc(doc(db, "kontrak", id), updatedContract);
-}
-    if (found) {
-      addLog('UPDATE_PROGRESS', found, `Memutakhirkan progres fisik menjadi ${progresFisik}%, keuangan menjadi ${progresKeuangan}%, dan status pekerjaan menjadi "${status}"`);
+      const updatedContract: KontrakFisik = {
+        ...found,
+        progresFisik,
+        progresKeuangan,
+        status,
+        catatanPekerjaan: catatan
+      };
+
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the update
+      await addLog('UPDATE_PROGRESS', found, `Memutakhirkan progres fisik menjadi ${progresFisik}%, keuangan menjadi ${progresKeuangan}%, dan status pekerjaan menjadi "${status}"`);
+      
+      console.log("✅ Progress berhasil diupdate");
+    } catch (error) {
+      console.error("❌ Gagal update progress:", error);
+      alert("Gagal mengupdate progress");
     }
   };
 
   // Add Adendum	
   const handleAddAdendum = async (id: string, adendumOmit: Omit<AdendumKontrak, 'id'>) => {
-    const newAdendum: AdendumKontrak = {
-      ...adendumOmit,
-      id: `ADD-${Date.now()}`
-    };
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
 
-    const found = contracts.find(c => c.id === id);
-    const updated = contracts.map(c => {
-      if (c.id === id) {
-        // Business Logic: Adendums can modify contract value and execution time
-        let updatedNilai = c.nilaiKontrak;
-        let updatedJangka = c.jangkaWaktu;
-        let updatedSelesai = c.tanggalSelesai;
+      // Create adendum object, excluding undefined values for Firestore
+      const newAdendum: AdendumKontrak = {
+        id: `ADD-${Date.now()}`,
+        noAdendum: adendumOmit.noAdendum,
+        tanggalAdendum: adendumOmit.tanggalAdendum,
+        keterangan: adendumOmit.keterangan,
+        ...(adendumOmit.perubahanNilai !== undefined && { perubahanNilai: adendumOmit.perubahanNilai }),
+        ...(adendumOmit.perubahanWaktu !== undefined && { perubahanWaktu: adendumOmit.perubahanWaktu })
+      };
 
-        if (adendumOmit.perubahanNilai) {
-          updatedNilai += adendumOmit.perubahanNilai;
-        }
+      // Business Logic: Adendums can modify contract value and execution time
+      let updatedNilai = found.nilaiKontrak;
+      let updatedJangka = found.jangkaWaktu;
+      let updatedSelesai = found.tanggalSelesai;
 
-        if (adendumOmit.perubahanWaktu) {
-          updatedJangka += adendumOmit.perubahanWaktu;
-          // Recalculate target end date based on original start date
-          try {
-            const date = new Date(c.tanggalMulai);
-            date.setDate(date.getDate() + updatedJangka);
-            updatedSelesai = date.toISOString().split('T')[0];
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        return {
-          ...c,
-          nilaiKontrak: updatedNilai,
-          jangkaWaktu: updatedJangka,
-          tanggalSelesai: updatedSelesai,
-          adendum: [...c.adendum, newAdendum]
-        };
+      if (adendumOmit.perubahanNilai) {
+        updatedNilai += adendumOmit.perubahanNilai;
       }
-      return c;
-    });
 
-    saveContracts(updated);
-	const updatedContract = updated.find(c => c.id === id);
+      if (adendumOmit.perubahanWaktu) {
+        updatedJangka += adendumOmit.perubahanWaktu;
+        // Recalculate target end date based on original start date
+        try {
+          const date = new Date(found.tanggalMulai);
+          date.setDate(date.getDate() + updatedJangka);
+          updatedSelesai = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error(e);
+        }
+      }
 
-if (updatedContract) {
-  try {
-    await setDoc(
-      doc(db, "kontrak", id),
-      updatedContract
-    );
-    console.log("Adendum berhasil disimpan ke Firestore");
-  } catch (error) {
-    console.error("Gagal menyimpan adendum:", error);
-  }
-}
-    if (found) {
-      addLog('ADD_ADENDUM', found, `Menambahkan adendum kontrak baru No: ${adendumOmit.noAdendum} dengan alasan: "${adendumOmit.keterangan}"`);
+      const updatedContract: KontrakFisik = {
+        ...found,
+        nilaiKontrak: updatedNilai,
+        jangkaWaktu: updatedJangka,
+        tanggalSelesai: updatedSelesai,
+        adendum: [...found.adendum, newAdendum]
+      };
+
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the action
+      await addLog('ADD_ADENDUM', found, `Menambahkan adendum kontrak baru No: ${adendumOmit.noAdendum} dengan alasan: "${adendumOmit.keterangan}"`);
+
+      console.log("✅ Adendum berhasil ditambahkan");
+    } catch (error) {
+      console.error("❌ Gagal menambahkan adendum:", error);
+      alert("Gagal menambahkan adendum");
     }
   };
 
   // Add Attachment
   const handleAddLampiran = async (id: string, lampiranOmit: Omit<DokumenLampiran, 'id'>) => {
-    const newLampiran: DokumenLampiran = {
-      ...lampiranOmit,
-      id: `LAMP-${Date.now()}`
-    };
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
 
-    const found = contracts.find(c => c.id === id);
-    const updated = contracts.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          lampiran: [...c.lampiran, newLampiran]
-        };
-      }
-      return c;
-    });
+      const newLampiran: DokumenLampiran = {
+        ...lampiranOmit,
+        id: `LAMP-${Date.now()}`
+      };
 
-    saveContracts(updated);
-	const updatedContract = updated.find(c => c.id === id);
+      const updatedContract: KontrakFisik = {
+        ...found,
+        lampiran: [...found.lampiran, newLampiran]
+      };
 
-if (updatedContract) {
-  try {
-    await setDoc(
-      doc(db, "kontrak", id),
-      updatedContract
-    );
-    console.log("Lampiran berhasil disimpan ke Firestore");
-  } catch (error) {
-    console.error("Gagal menyimpan lampiran:", error);
-  }
-}
-    if (found) {
-      addLog('ADD_LAMPIRAN', found, `Mengunggah dokumen lampiran baru "${lampiranOmit.namaFile}" (${lampiranOmit.tipeDokumen})`);
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the action
+      await addLog('ADD_LAMPIRAN', found, `Mengunggah dokumen lampiran baru "${lampiranOmit.namaFile}" (${lampiranOmit.tipeDokumen})`);
+
+      console.log("✅ Lampiran berhasil ditambahkan");
+    } catch (error) {
+      console.error("❌ Gagal menambahkan lampiran:", error);
+      alert("Gagal menambahkan lampiran");
     }
   };
 
   // Delete Attachment
   const handleDeleteLampiran = async (id: string, lampiranId: string) => {
-    const found = contracts.find(c => c.id === id);
-    const lamp = found?.lampiran.find(l => l.id === lampiranId);
-    const updated = contracts.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          lampiran: c.lampiran.filter(l => l.id !== lampiranId)
-        };
-      }
-      return c;
-    });
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
 
-    saveContracts(updated);
-	const updatedContract = updated.find(c => c.id === id);
+      const lamp = found.lampiran.find((l: DokumenLampiran) => l.id === lampiranId);
+      if (!lamp) return;
 
-if (updatedContract) {
-  try {
-    await setDoc(
-      doc(db, "kontrak", id),
-      updatedContract
-    );
-    console.log("Penghapusan lampiran berhasil disimpan");
-  } catch (error) {
-    console.error(error);
-  }
-}
-    if (found && lamp) {
-      addLog('DELETE_LAMPIRAN', found, `Menghapus berkas lampiran "${lamp.namaFile}" dari berkas kontrak`);
+      const updatedContract: KontrakFisik = {
+        ...found,
+        lampiran: found.lampiran.filter((l: DokumenLampiran) => l.id !== lampiranId)
+      };
+
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the action
+      await addLog('DELETE_LAMPIRAN', found, `Menghapus berkas lampiran "${lamp.namaFile}" dari berkas kontrak`);
+
+      console.log("✅ Lampiran berhasil dihapus");
+    } catch (error) {
+      console.error("❌ Gagal menghapus lampiran:", error);
+      alert("Gagal menghapus lampiran");
     }
   };
 
@@ -534,17 +590,26 @@ if (updatedContract) {
         </div>
       </nav>
 
-      {/* Footer Sesi */}
-      <div className="p-4 bg-slate-950/50 border-t border-slate-800">
+      {/* Footer Sesi with Logout */}
+      <div className="p-4 bg-slate-950/50 border-t border-slate-800 space-y-2">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-bold border border-slate-600">
-            AD
+            {user?.email?.substring(0, 2).toUpperCase() || 'AD'}
           </div>
-          <div>
-            <p className="text-white text-xs font-semibold leading-none">Admin Dinas</p>
-            <p className="text-[9px] text-slate-500 mt-1 italic">Sesi: 2026-06-29</p>
+          <div className="flex-1">
+            <p className="text-white text-xs font-semibold leading-none truncate">{user?.email || 'Admin Dinas'}</p>
+            <p className="text-[9px] text-slate-500 mt-1 italic">Status: Online</p>
           </div>
         </div>
+        
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg text-xs font-semibold transition border border-red-500/20"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Keluar Sistem
+        </button>
       </div>
     </div>
   );
@@ -561,6 +626,30 @@ if (updatedContract) {
     });
   }, [contracts, selectedYear, selectedRegion]);
 
+  // Show loading spinner while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mb-4"></div>
+          <p className="text-slate-400 text-sm">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!user) {
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+        isLoading={loginLoading}
+        error={loginError}
+      />
+    );
+  }
+
+  // Main app (authenticated users only)
   return (
     <div className="min-h-screen bg-slate-100 flex font-sans text-slate-800 overflow-x-hidden">
       {/* Desktop Sidebar (Collapsible) */}
@@ -674,7 +763,6 @@ if (updatedContract) {
                 setActiveTab('input');
               }}
               onDeleteContract={handleDeleteContract}
-              onDeleteAllContracts={handleDeleteAllContracts}
             />
           )}
 
@@ -710,9 +798,20 @@ if (updatedContract) {
             <ActivityLogView 
               logs={activityLogs}
               contracts={contracts}
-              onClearLogs={() => {
-                setActivityLogs([]);
-                localStorage.setItem('pupr_activity_logs', JSON.stringify([]));
+              onClearLogs={async () => {
+                try {
+                  // Delete all logs from Firestore
+                  const snapshot = await getDocs(collection(db, "activity_logs"));
+                  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, "activity_logs", docSnap.id)));
+                  await Promise.all(deletePromises);
+                  
+                  // Clear local state
+                  setActivityLogs([]);
+                  console.log("✅ Semua log aktivitas berhasil dihapus");
+                } catch (error) {
+                  console.error("❌ Gagal menghapus log:", error);
+                  alert("Gagal menghapus log aktivitas");
+                }
               }}
               onSelectContract={(id) => {
                 setSelectedContractId(id);

@@ -78,7 +78,7 @@ export default function ContractDetail({
   const [showAdendumForm, setShowAdendumForm] = useState(false);
   const [noAdendum, setNoAdendum] = useState('');
   const [tanggalAdendum, setTanggalAdendum] = useState('');
-  const [perubahanNilai, setPerubahanNilai] = useState<number | ''>('');
+  const [jenisAdendum, setJenisAdendum] = useState<'Adendum I' | 'Adendum II'>('Adendum I');
   const [perubahanWaktu, setPerubahanWaktu] = useState<number | ''>('');
   const [keteranganAdendum, setKeteranganAdendum] = useState('');
 
@@ -162,18 +162,17 @@ export default function ContractDetail({
     onAddAdendum(contract.id, {
       noAdendum,
       tanggalAdendum,
-      perubahanNilai: perubahanNilai === '' ? undefined : Number(perubahanNilai),
       perubahanWaktu: perubahanWaktu === '' ? undefined : Number(perubahanWaktu),
-      keterangan: keteranganAdendum
+      keterangan: `${jenisAdendum}: ${keteranganAdendum}`
     });
     // Reset
     setNoAdendum('');
     setTanggalAdendum('');
-    setPerubahanNilai('');
+    setJenisAdendum('Adendum I');
     setPerubahanWaktu('');
     setKeteranganAdendum('');
     setShowAdendumForm(false);
-    showToast(`Adendum No. ${noAdendum} berhasil ditambahkan!`, "success");
+    showToast(`${jenisAdendum} No. ${noAdendum} berhasil ditambahkan!`, "success");
   };
 
   const handleSaveUpload = (e: React.FormEvent) => {
@@ -404,6 +403,16 @@ export default function ContractDetail({
                         <span className="sm:col-span-2 font-bold text-amber-700"><span className="hidden sm:inline">: </span>{contract.kegiatanPreservasi}</span>
                       </div>
                     )}
+                    {contract.waktuPemeliharaan && (
+                      <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
+                        <span className="text-slate-500 font-semibold">Wkt. Pemeliharaan</span>
+                        <span className="sm:col-span-2 font-bold text-emerald-700"><span className="hidden sm:inline">: </span>{contract.waktuPemeliharaan}</span>
+                      </div>
+                    )}
+                    <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
+                      <span className="text-slate-500 font-semibold">Tanggal Kontrak</span>
+                      <span className="sm:col-span-2 font-bold text-slate-700"><span className="hidden sm:inline">: </span>{contract.tanggalKontrak}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -455,7 +464,7 @@ export default function ContractDetail({
                   <Clock className="w-3.5 h-3.5 text-amber-500" />
                   Masa Waktu Pelaksanaan
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50 p-3 rounded border border-slate-200">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 bg-slate-50 p-3 rounded border border-slate-200">
                   <div className="space-y-0.5">
                     <p className="text-[10px] text-slate-500 font-semibold">Jangka Waktu</p>
                     <p className="font-bold text-slate-800">{contract.jangkaWaktu} Hari Kalender</p>
@@ -464,14 +473,14 @@ export default function ContractDetail({
                     <p className="text-[10px] text-slate-500 font-semibold">Tanggal Mulai (SPMK)</p>
                     <p className="font-bold text-slate-800">{contract.tanggalMulai}</p>
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] text-slate-500 font-semibold">Target Selesai</p>
-                    <p className="font-bold text-slate-800">{contract.tanggalSelesai}</p>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] text-slate-500 font-semibold">Tanggal Kontrak</p>
-                    <p className="font-bold text-slate-700">{contract.tanggalKontrak}</p>
-                  </div>
+                  {contract.nomorSpmk && (
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] text-slate-500 font-semibold">Nomor SPMK</p>
+                      <p className="font-bold text-slate-800 text-xs font-mono break-all leading-tight">
+                        {contract.nomorSpmk}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -514,8 +523,20 @@ export default function ContractDetail({
                     <span>{errorAdendum}</span>
                   </div>
                 )}
-                <h4 className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Formulir Input Adendum Baru</h4>
+                <h4 className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Formulir Input Adendum I dan Adendum II</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-slate-500">Jenis Adendum</label>
+                    <select
+                      value={jenisAdendum}
+                      onChange={(e) => setJenisAdendum(e.target.value as 'Adendum I' | 'Adendum II')}
+                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none font-semibold"
+                      required
+                    >
+                      <option value="Adendum I">Adendum I</option>
+                      <option value="Adendum II">Adendum II</option>
+                    </select>
+                  </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-semibold text-slate-500">Nomor Adendum</label>
                     <input
@@ -535,16 +556,6 @@ export default function ContractDetail({
                       onChange={(e) => setTanggalAdendum(e.target.value)}
                       className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none font-sans"
                       required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-500">Perubahan Nilai (Kosongkan jika tetap)</label>
-                    <input
-                      type="number"
-                      value={perubahanNilai}
-                      onChange={(e) => setPerubahanNilai(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="Rp. Positif (tambah) / Negatif (kurang)"
-                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none"
                     />
                   </div>
                   <div className="space-y-1">

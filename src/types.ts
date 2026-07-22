@@ -24,6 +24,7 @@ export interface AdendumKontrak {
 
 export interface KontrakFisik {
   id: string;
+  firestoreId?: string; // Firestore document ID
   noKontrak: string;
   tanggalKontrak: string;
   namaPaket: string;
@@ -37,6 +38,7 @@ export interface KontrakFisik {
   konsultanPengawas: string;
   jangkaWaktu: number; // Hari kalender
   tanggalMulai: string; // SPMK Date
+  nomorSpmk?: string; // Nomor SPMK
   tanggalSelesai: string; // Target Selesai
   progresFisik: number; // 0 - 100%
   progresKeuangan: number; // 0 - 100%
@@ -46,6 +48,7 @@ export interface KontrakFisik {
   catatanPekerjaan: string;
   kegiatanPreservasi?: string;
   panjangEfektif?: string;
+  waktuPemeliharaan?: string; // Waktu pemeliharaan (misal: "180 Hari Kalender" atau "6 Bulan")
   adendum: AdendumKontrak[];
   lampiran: DokumenLampiran[];
 }

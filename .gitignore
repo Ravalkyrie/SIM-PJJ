@@ -1,7 +1,38 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 build/
+dist/
+*.local
+
+# Testing
 coverage/
+
+# Misc
 .DS_Store
 *.log
-.env*
+*.log.*
+
+# Environment variables (JANGAN COMMIT!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# EXCEPTION: Template file boleh di-commit
 !.env.example
+
+# Firebase sensitive files
+firebase-applet-config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db

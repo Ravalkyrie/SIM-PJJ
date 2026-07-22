@@ -44,6 +44,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
   const [jangkaWaktu, setJangkaWaktu] = useState<number | ''>('');
   const [tanggalMulai, setTanggalMulai] = useState('');
   const [tanggalSelesai, setTanggalSelesai] = useState('');
+  const [nomorSpmk, setNomorSpmk] = useState('');
   const [progresFisik, setProgresFisik] = useState<number>(0);
   const [progresKeuangan, setProgresKeuangan] = useState<number>(0);
   const [status, setStatus] = useState<KontrakFisik['status']>('Persiapan');
@@ -51,6 +52,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
   const [nipPpk, setNipPpk] = useState('');
   const [catatanPekerjaan, setCatatanPekerjaan] = useState('');
   const [kegiatanPreservasi, setKegiatanPreservasi] = useState('');
+  const [waktuPemeliharaan, setWaktuPemeliharaan] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Auto calculate target completion date
@@ -80,6 +82,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       setKonsultanPengawas(initialContract.konsultanPengawas);
       setJangkaWaktu(initialContract.jangkaWaktu);
       setTanggalMulai(initialContract.tanggalMulai);
+      setNomorSpmk(initialContract.nomorSpmk || '');
       setTanggalSelesai(initialContract.tanggalSelesai);
       setProgresFisik(initialContract.progresFisik);
       setProgresKeuangan(initialContract.progresKeuangan);
@@ -88,6 +91,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       setNipPpk(initialContract.nipPpk);
       setCatatanPekerjaan(initialContract.catatanPekerjaan);
       setKegiatanPreservasi(initialContract.kegiatanPreservasi || '');
+      setWaktuPemeliharaan(initialContract.waktuPemeliharaan || '');
     } else {
       setNoKontrak('');
       setTanggalKontrak('');
@@ -146,6 +150,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       konsultanPengawas,
       jangkaWaktu: Number(jangkaWaktu),
       tanggalMulai,
+      nomorSpmk: nomorSpmk || undefined,
       tanggalSelesai: tanggalSelesai || addDaysToDate(tanggalMulai, Number(jangkaWaktu)),
       progresFisik,
       progresKeuangan,
@@ -155,6 +160,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       catatanPekerjaan,
       kegiatanPreservasi,
       panjangEfektif: panjangEfektif || '',
+      waktuPemeliharaan: waktuPemeliharaan || undefined,
       adendum: initialContract?.adendum || [],
       lampiran: initialContract?.lampiran || []
     };
@@ -206,7 +212,7 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Kontrak/SPK *</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor Kontrak *</label>
                   <input
                     type="text"
                     value={noKontrak}
@@ -323,18 +329,31 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
                   </div>
                 </div>
 
-                <div className="space-y-1 border-t border-slate-100 pt-2.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Kegiatan Preservasi Jalan</label>
-                  <select
-                    value={kegiatanPreservasi}
-                    onChange={(e) => setKegiatanPreservasi(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-slate-900 transition"
-                  >
-                    <option value="">- Bukan Preservasi / Tidak Ada -</option>
-                    <option value="Rehabilitasi">Rehabilitasi</option>
-                    <option value="Rekonstruksi">Rekonstruksi</option>
-                    <option value="Long Segment">Long Segment</option>
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-slate-100 pt-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Kegiatan Preservasi Jalan</label>
+                    <select
+                      value={kegiatanPreservasi}
+                      onChange={(e) => setKegiatanPreservasi(e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-slate-900 transition"
+                    >
+                      <option value="">- Bukan Preservasi / Tidak Ada -</option>
+                      <option value="Rehabilitasi">Rehabilitasi</option>
+                      <option value="Rekonstruksi">Rekonstruksi</option>
+                      <option value="Long Segment">Long Segment</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Waktu Pemeliharaan</label>
+                    <input
+                      type="text"
+                      value={waktuPemeliharaan}
+                      onChange={(e) => setWaktuPemeliharaan(e.target.value)}
+                      placeholder="Contoh: 180 Hari Kalender atau 6 Bulan"
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-slate-900"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -434,6 +453,17 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
                     onChange={(e) => setTanggalMulai(e.target.value)}
                     className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-slate-900 font-sans"
                     required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Nomor SPMK</label>
+                  <input
+                    type="text"
+                    value={nomorSpmk}
+                    onChange={(e) => setNomorSpmk(e.target.value)}
+                    placeholder="Contoh: 602/DBM/SPMK/.../2026"
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-slate-900 font-sans"
                   />
                 </div>
 
