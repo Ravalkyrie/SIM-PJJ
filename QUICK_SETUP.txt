@@ -1,0 +1,38 @@
+📋 QUICK SETUP GUIDE - HERO BACKGROUND IMAGE
+============================================
+
+✅ CODE UPDATED - NOW ADD THE IMAGE FILE
+
+STEP 1: Save Your Image
+------------------------
+1. Take the bridge/highway image you provided
+2. Rename it to: hero-bridge.jpg
+3. Save it to: C:\New folder\Manajemen\public\assets\hero-bridge.jpg
+
+STEP 2: Verify
+--------------
+Open: C:\New folder\Manajemen\public\assets\
+You should see: hero-bridge.jpg
+
+STEP 3: Test
+------------
+cd "C:\New folder\Manajemen"
+npm run dev
+
+Visit: http://localhost:5173
+Check: Dashboard shows bridge background
+
+STEP 4: Deploy
+--------------
+npm run build
+firebase deploy --only hosting
+
+DONE! ✅
+
+============================================
+WHAT WAS CHANGED:
+- File: src/components/DashboardView.tsx
+- Lines: 80-90
+- Changed: Gradient background → Image background
+- Added: Dark overlay for text readability
+============================================

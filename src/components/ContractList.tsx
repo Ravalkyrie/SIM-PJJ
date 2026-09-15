@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { KontrakFisik, KABUPATEN_PRESETS } from '../types';
+import { KontrakFisik, KABUPATEN_PRESETS, UserRole } from '../types';
 import { formatBriefRupiah } from './DashboardView';
 import { 
   Search, 
@@ -27,9 +27,10 @@ interface ContractListProps {
   onNavigateToInput: () => void;
   onDeleteContract: (id: string) => void;
   onDeleteAllContracts?: () => void;
+  userRole?: UserRole;
 }
 
-export default function ContractList({ contracts, onSelectContract, onNavigateToInput, onDeleteContract, onDeleteAllContracts }: ContractListProps) {
+export default function ContractList({ contracts, onSelectContract, onNavigateToInput, onDeleteContract, onDeleteAllContracts, userRole = 'user' }: ContractListProps) {
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTahun, setSelectedTahun] = useState<string>('Semua');
@@ -103,7 +104,7 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
           <p className="text-xs text-slate-500">Kelola, cari, dan tinjau berkas kontrak Bidang Bina Marga</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-          {contracts.length > 0 && onDeleteAllContracts && (
+          {userRole !== 'visitor' && contracts.length > 0 && onDeleteAllContracts && (
             <button
               id="btn-delete-all-contracts"
               onClick={() => setShowDeleteAllConfirm(true)}
@@ -113,14 +114,16 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
               Hapus Semua Kontrak
             </button>
           )}
-          <button
-            id="btn-add-contract"
-            onClick={onNavigateToInput}
-            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-xs rounded shadow-md transition shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 text-amber-400" />
-            Input Kontrak Baru
-          </button>
+          {userRole !== 'visitor' && (
+            <button
+              id="btn-add-contract"
+              onClick={onNavigateToInput}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-xs rounded shadow-md transition shrink-0 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-amber-400" />
+              Input Kontrak Baru
+            </button>
+          )}
         </div>
       </div>
 
@@ -394,16 +397,18 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition"
-                            title="Hapus Kontrak"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {userRole !== 'visitor' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition"
+                              title="Hapus Kontrak"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -545,16 +550,18 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
 
                   <div className="flex justify-between items-center pt-1">
                     <span className="text-[10px] text-slate-400 italic">Klik untuk melihat detail lengkap</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
-                      }}
-                      className="p-1 px-2 text-rose-600 hover:bg-rose-50 rounded transition flex items-center gap-1 text-[11px] font-bold"
-                      title="Hapus Kontrak"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Hapus
-                    </button>
+                    {userRole !== 'visitor' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
+                        }}
+                        className="p-1 px-2 text-rose-600 hover:bg-rose-50 rounded transition flex items-center gap-1 text-[11px] font-bold"
+                        title="Hapus Kontrak"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Hapus
+                      </button>
+                    )}
                   </div>
                 </div>
               );

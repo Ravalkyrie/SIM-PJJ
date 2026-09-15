@@ -64,6 +64,19 @@ export interface ActivityLog {
   operator: string;
 }
 
+// User Role Types
+export type UserRole = 'admin' | 'user' | 'visitor';
+
+// App User Interface
+export interface AppUser {
+  uid: string;
+  email: string;
+  displayName?: string;
+  role: UserRole;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Actual Kab/Kota in Provinsi Nusa Tenggara Timur (NTT)
 export const KABUPATEN_PRESETS = [
   "Kabupaten Kupang",
@@ -89,4 +102,7 @@ export const KABUPATEN_PRESETS = [
   "Kabupaten Sumba Tengah",
   "Kabupaten Sumba Barat Daya"
 ];
+
+// Super Admin Email - Cannot be downgraded
+export const SUPER_ADMIN_EMAIL = 'sagalaarief@gmail.com';
 

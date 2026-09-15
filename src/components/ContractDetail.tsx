@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KontrakFisik, AdendumKontrak, DokumenLampiran } from '../types';
+import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole } from '../types';
 import { formatRupiah, formatBriefRupiah } from './DashboardView';
 import { 
   ArrowLeft, 
@@ -47,6 +47,7 @@ interface ContractDetailProps {
   onAddAdendum: (id: string, adendum: Omit<AdendumKontrak, 'id'>) => void;
   onAddLampiran: (id: string, lampiran: Omit<DokumenLampiran, 'id'>) => void;
   onDeleteLampiran: (id: string, lampiranId: string) => void;
+  userRole?: UserRole;
 }
 
 export default function ContractDetail({ 
@@ -57,7 +58,8 @@ export default function ContractDetail({
   onUpdateProgress,
   onAddAdendum,
   onAddLampiran,
-  onDeleteLampiran
+  onDeleteLampiran,
+  userRole = 'user'
 }: ContractDetailProps) {
   // Local state for interactive progress updates
   const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
@@ -229,22 +231,24 @@ export default function ContractDetail({
           Kembali ke Daftar Kontrak
         </button>
 
-        <div className="flex gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => onEdit(contract.id)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
-          >
-            <Edit className="w-3.5 h-3.5 text-amber-400" />
-            Edit Kontrak
-          </button>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded text-xs font-bold transition cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-            Hapus Kontrak
-          </button>
-        </div>
+        {userRole !== 'visitor' && (
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => onEdit(contract.id)}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
+            >
+              <Edit className="w-3.5 h-3.5 text-amber-400" />
+              Edit Kontrak
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded text-xs font-bold transition cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+              Hapus Kontrak
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal Overlay */}
@@ -504,14 +508,16 @@ export default function ContractDetail({
                 </h3>
                 <p className="text-[10px] text-slate-500">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
               </div>
-              <button
-                id="btn-add-adendum"
-                onClick={() => setShowAdendumForm(!showAdendumForm)}
-                className="flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-wider cursor-pointer transition"
-              >
-                {showAdendumForm ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                {showAdendumForm ? "Batal" : "Tambah Adendum"}
-              </button>
+              {userRole !== 'visitor' && (
+                <button
+                  id="btn-add-adendum"
+                  onClick={() => setShowAdendumForm(!showAdendumForm)}
+                  className="flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-wider cursor-pointer transition"
+                >
+                  {showAdendumForm ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                  {showAdendumForm ? "Batal" : "Tambah Adendum"}
+                </button>
+              )}
             </div>
 
             {/* Inline Adendum Form */}
@@ -633,13 +639,15 @@ export default function ContractDetail({
                 <Paperclip className="w-4 h-4 text-indigo-600" />
                 Berkas Kontrak Digital
               </h3>
-              <button
-                id="btn-add-file"
-                onClick={() => setShowUploadForm(!showUploadForm)}
-                className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
-              >
-                {showUploadForm ? "Batal" : "+ Tambah Link"}
-              </button>
+              {userRole !== 'visitor' && (
+                <button
+                  id="btn-add-file"
+                  onClick={() => setShowUploadForm(!showUploadForm)}
+                  className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
+                >
+                  {showUploadForm ? "Batal" : "+ Tambah Link"}
+                </button>
+              )}
             </div>
 
             {/* Document Upload Form (URL Input) */}
@@ -845,14 +853,16 @@ export default function ContractDetail({
                                   </a>
                                 )}
                                 
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteFile(lamp)}
-                                  className="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-700 border border-transparent hover:border-rose-150 rounded transition cursor-pointer shrink-0"
-                                  title="Hapus Berkas"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                                {userRole !== 'visitor' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteFile(lamp)}
+                                    className="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-700 border border-transparent hover:border-rose-150 rounded transition cursor-pointer shrink-0"
+                                    title="Hapus Berkas"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -875,21 +885,23 @@ export default function ContractDetail({
                 <TrendingUp className="w-4 h-4 text-emerald-600" />
                 Progres & Status Real-time
               </h3>
-              {!isUpdatingProgress ? (
-                <button
-                  onClick={() => {
-                    setLocalFisik(contract.progresFisik);
-                    setLocalKeuangan(contract.progresKeuangan);
-                    setLocalStatus(contract.status);
-                    setLocalCatatan(contract.catatanPekerjaan);
-                    setIsUpdatingProgress(true);
-                  }}
-                  className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
-                >
-                  <Edit className="w-3 h-3 text-amber-500" /> Perbarui
-                </button>
-              ) : (
-                <div className="flex gap-2">
+              {userRole !== 'visitor' && (
+                <>
+                  {!isUpdatingProgress ? (
+                    <button
+                      onClick={() => {
+                        setLocalFisik(contract.progresFisik);
+                        setLocalKeuangan(contract.progresKeuangan);
+                        setLocalStatus(contract.status);
+                        setLocalCatatan(contract.catatanPekerjaan);
+                        setIsUpdatingProgress(true);
+                      }}
+                      className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
+                    >
+                      <Edit className="w-3 h-3 text-amber-500" /> Perbarui
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
                   <button
                     onClick={() => setIsUpdatingProgress(false)}
                     className="text-[10px] text-slate-400 hover:text-slate-600 font-bold uppercase tracking-wider"
@@ -903,6 +915,8 @@ export default function ContractDetail({
                     Simpan
                   </button>
                 </div>
+              )}
+                </>
               )}
             </div>
 

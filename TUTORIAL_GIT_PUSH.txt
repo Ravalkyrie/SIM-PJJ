@@ -1,0 +1,156 @@
+================================================================
+TUTORIAL PUSH KE GITHUB
+================================================================
+
+STEP-BY-STEP GUIDE
+==================
+
+1. CEK STATUS FILE
+------------------
+Lihat file apa saja yang sudah diubah:
+
+cd "C:/New folder/Manajemen"
+git status
+
+
+2. TAMBAHKAN FILE KE STAGING
+-----------------------------
+Pilih salah satu:
+
+# Tambah semua file yang diubah:
+git add .
+
+# ATAU tambah file spesifik saja:
+git add src/components/DashboardView.tsx
+git add QUICK_SUMMARY.txt
+git add LATEST_IMAGE_UPDATE.md
+git add BACKGROUND_STATUS.txt
+
+
+3. COMMIT PERUBAHAN
+-------------------
+Buat commit dengan pesan yang jelas:
+
+git commit -m "Update background image to imgur PN1WH0w"
+
+# ATAU dengan pesan lebih detail:
+git commit -m "Update hero section background image
+
+- Changed background URL to https://i.imgur.com/PN1WH0w.jpeg
+- Updated documentation files
+- Fixed hero section display issue
+"
+
+
+4. PUSH KE GITHUB
+-----------------
+
+# Push ke branch baru (RECOMMENDED):
+git checkout -b update-background-image
+git push -u origin update-background-image
+
+# ATAU push langsung ke main (jika yakin):
+git push origin main
+
+
+5. BUAT PULL REQUEST (OPTIONAL)
+-------------------------------
+Jika push ke branch baru, buat Pull Request di GitHub:
+1. Buka https://github.com/your-username/your-repo
+2. Klik "Compare & pull request"
+3. Isi deskripsi perubahan
+4. Klik "Create pull request"
+
+
+================================================================
+TROUBLESHOOTING
+================================================================
+
+MASALAH: "fatal: not a git repository"
+SOLUSI:
+  cd "C:/New folder/Manajemen"
+  git init
+  git remote add origin https://github.com/username/repo-name.git
+
+
+MASALAH: "error: failed to push"
+SOLUSI:
+  # Pull dulu sebelum push:
+  git pull origin main --rebase
+  git push origin main
+
+
+MASALAH: "Permission denied"
+SOLUSI:
+  # Pastikan sudah login atau set token:
+  git config --global user.name "Your Name"
+  git config --global user.email "your.email@example.com"
+
+
+MASALAH: Conflict saat merge
+SOLUSI:
+  # Lihat file yang conflict:
+  git status
+  
+  # Edit file, hapus marker <<<< ==== >>>>
+  # Lalu:
+  git add .
+  git commit -m "Resolve merge conflict"
+  git push
+
+
+================================================================
+PERINTAH LENGKAP (COPY-PASTE)
+================================================================
+
+cd "C:/New folder/Manajemen"
+git status
+git add .
+git commit -m "Update background image to imgur PN1WH0w"
+git checkout -b update-background-image
+git push -u origin update-background-image
+
+
+ATAU untuk push langsung ke main:
+
+cd "C:/New folder/Manajemen"
+git status
+git add .
+git commit -m "Update background image to imgur PN1WH0w"
+git push origin main
+
+
+================================================================
+TIPS & BEST PRACTICES
+================================================================
+
+✅ SELALU cek git status sebelum commit
+✅ GUNAKAN branch baru untuk perubahan besar
+✅ TULIS commit message yang jelas dan deskriptif
+✅ PULL dulu sebelum push untuk avoid conflict
+✅ JANGAN commit file sensitif (.env, credentials, dll)
+
+❌ HINDARI git push --force (kecuali sangat perlu)
+❌ HINDARI commit langsung ke main tanpa review
+❌ HINDARI commit message tidak jelas ("update", "fix")
+
+
+================================================================
+CONTOH COMMIT MESSAGES YANG BAIK
+================================================================
+
+✅ "Update hero background image to Imgur PN1WH0w"
+✅ "Fix: Replace missing local image with CDN URL"
+✅ "Docs: Add background image update documentation"
+✅ "Refactor: Change background implementation to CSS"
+
+❌ "update"
+❌ "fix bug"
+❌ "changes"
+❌ "asdf"
+
+
+================================================================
+Date: 2026-09-15
+Status: Ready to push
+================================================================

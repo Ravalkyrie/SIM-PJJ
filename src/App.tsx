@@ -4,6 +4,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { db } from "./firebase";
 import {
   collection,
@@ -14,28 +16,32 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { User } from 'firebase/auth';
-import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS } from './types';
-import { INITIAL_KONTRAK } from './data/mockData';
-import DashboardView from './components/DashboardView';
-import ContractList from './components/ContractList';
-import ContractDetail from './components/ContractDetail';
-import ContractForm from './components/ContractForm';
-import ActivityLogView from './components/ActivityLogView';
+import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS, AppUser, UserRole } from './types';
+import DashboardPage from './pages/DashboardPage';
+import ContractsPage from './pages/ContractsPage';
+import ContractDetailPage from './pages/ContractDetailPage';
+import ContractFormPage from './pages/ContractFormPage';
+import ActivityLogsPage from './pages/ActivityLogsPage';
+import AccessManagementPage from './pages/AccessManagementPage';
+import PageTransition from './components/PageTransition';
 import LoginPage from './components/LoginPage';
 import { loginUser, logoutUser, onAuthChange } from './lib/auth';
+import { initializeUser, getUserRole, updateUserRole, hasPermission, canAccessRoute } from './lib/userManagement';
 import { 
-  Building2, 
-  LayoutDashboard, 
-  Files, 
-  FilePlus, 
-  Settings, 
-  Info,
-  Calendar,
-  Layers,
-  Map,
+  LogOut,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  LayoutDashboard,
+  Files,
   History,
-  LogOut
+  FilePlus,
+  Shield
 } from 'lucide-react';
+
+
 
 const generateSeedLogs = (contractsList: KontrakFisik[]): ActivityLog[] => {
   const seed: ActivityLog[] = [];
@@ -98,9 +104,14 @@ const generateSeedLogs = (contractsList: KontrakFisik[]): ActivityLog[] => {
   return seed.sort((a, b) => b.id.localeCompare(a.id));
 };
 
-export default function App() {
+// Main App Content Component
+function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Authentication State
   const [user, setUser] = useState<User | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole>('user');
   const [authLoading, setAuthLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -108,9 +119,7 @@ export default function App() {
   // Master State
   const [contracts, setContracts] = useState<KontrakFisik[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'list' | 'input' | 'detail' | 'logs'>('dashboard');
-  const [selectedContractId, setSelectedContractId] = useState<string | null>(null);
-  const [contractToEdit, setContractToEdit] = useState<KontrakFisik | null>(null);
+  const [appUsers, setAppUsers] = useState<AppUser[]>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>('Semua');
@@ -120,14 +129,27 @@ export default function App() {
 
   // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthChange((currentUser) => {
+    const unsubscribe = onAuthChange(async (currentUser) => {
       setUser(currentUser);
-      setAuthLoading(false);
+      
       if (currentUser) {
         console.log('✅ User logged in:', currentUser.email);
+        
+        // Initialize user in Firestore and get role
+        try {
+          const appUser = await initializeUser(currentUser);
+          setCurrentUserRole(appUser.role);
+          console.log('✅ User role:', appUser.role);
+        } catch (error) {
+          console.error('❌ Error initializing user:', error);
+          setCurrentUserRole('user'); // Fallback
+        }
       } else {
         console.log('⚠️ No user logged in');
+        setCurrentUserRole('user');
       }
+      
+      setAuthLoading(false);
     });
 
     return () => unsubscribe();
@@ -158,7 +180,7 @@ export default function App() {
       setUser(null);
       setContracts([]);
       setActivityLogs([]);
-      setActiveTab('dashboard');
+      navigate('/dashboard');
       console.log('✅ Logout berhasil');
     } catch (error: any) {
       console.error('❌ Logout gagal:', error);
@@ -168,6 +190,8 @@ export default function App() {
 
   // Load contracts from Firestore
   useEffect(() => {
+    if (!user) return;
+
     const loadContracts = async () => {
       setIsLoading(true);
       setError(null);
@@ -190,10 +214,12 @@ export default function App() {
     };
 
     loadContracts();
-  }, []);
+  }, [user]);
 
   // Load activity logs from Firestore
   useEffect(() => {
+    if (!user) return;
+
     const loadLogs = async () => {
       try {
         const snapshot = await getDocs(collection(db, "activity_logs"));
@@ -210,7 +236,26 @@ export default function App() {
     };
 
     loadLogs();
-  }, []);
+  }, [user]);
+
+  // Load users from Firebase Authentication via Cloud Function (Admin only)
+  useEffect(() => {
+    if (!user || currentUserRole !== 'admin') return;
+
+    const loadUsers = async () => {
+      try {
+        const { listAllUsers } = await import('./lib/userManagement');
+        const users = await listAllUsers();
+        
+        setAppUsers(users.sort((a, b) => a.email.localeCompare(b.email)));
+        console.log("✅ Berhasil mengambil", users.length, "users dari Firebase Authentication");
+      } catch (error) {
+        console.error("⚠️ Gagal mengambil data users:", error);
+      }
+    };
+
+    loadUsers();
+  }, [user, currentUserRole]);
 
   // Helper to add activity logs to Firestore
   const addLog = async (
@@ -246,24 +291,88 @@ export default function App() {
     }
   };
 
-  // Select a contract to view details
-  const handleSelectContract = (id: string) => {
-    setSelectedContractId(id);
-    setActiveTab('detail');
-    setIsMobileSidebarOpen(false);
+  // Handle Update User Role (Admin only)
+  const handleUpdateUserRole = async (uid: string, newRole: UserRole) => {
+    if (currentUserRole !== 'admin') {
+      throw new Error('Unauthorized: Only admins can update user roles');
+    }
+
+    try {
+      await updateUserRole(uid, newRole);
+      
+      // Update local state
+      setAppUsers(prev => 
+        prev.map(u => u.uid === uid ? { ...u, role: newRole, updatedAt: new Date().toISOString() } : u)
+      );
+      
+      console.log('✅ User role updated successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to update user role:', error);
+      throw error;
+    }
   };
 
-  // Edit Contract
-  const handleEditContract = (id: string) => {
-    const found = contracts.find(c => c.id === id);
-    if (found) {
-      setContractToEdit(found);
-      setActiveTab('input');
+  // Handle Add User Manually (Admin only)
+  const handleAddUser = async (email: string, role: UserRole) => {
+    if (currentUserRole !== 'admin') {
+      throw new Error('Unauthorized: Only admins can add users');
     }
+
+    try {
+      const { addUserManually } = await import('./lib/userManagement');
+      await addUserManually(email, role);
+      console.log('✅ User added successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to add user:', error);
+      throw error;
+    }
+  };
+
+  // Handle Delete User (Admin only)
+  const handleDeleteUser = async (uid: string) => {
+    if (currentUserRole !== 'admin') {
+      throw new Error('Unauthorized: Only admins can delete users');
+    }
+
+    try {
+      const { deleteUser } = await import('./lib/userManagement');
+      await deleteUser(uid);
+      console.log('✅ User deleted successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to delete user:', error);
+      throw error;
+    }
+  };
+
+  // Refresh users list
+  const handleRefreshUsers = async () => {
+    if (currentUserRole !== 'admin') return;
+
+    try {
+      const { listAllUsers } = await import('./lib/userManagement');
+      const users = await listAllUsers();
+      
+      setAppUsers(users.sort((a, b) => a.email.localeCompare(b.email)));
+      console.log("✅ Users list refreshed");
+    } catch (error) {
+      console.error("⚠️ Failed to refresh users:", error);
+    }
+  };
+
+  // Select a contract to view details
+  const handleSelectContract = (id: string) => {
+    navigate(`/kontrak/${id}`);
+    setIsMobileSidebarOpen(false);
   };
 
   // Delete Contract
   const handleDeleteContract = async (id: string) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'delete')) {
+      alert('Anda tidak memiliki izin untuk menghapus kontrak');
+      return;
+    }
+
     if (!confirm("Apakah Anda yakin ingin menghapus kontrak ini?")) return;
 
     try {
@@ -283,12 +392,6 @@ export default function App() {
       // Log the deletion
       await addLog('DELETE', contract, `Menghapus berkas kontrak "${contract.namaPaket}" dari sistem`);
 
-      // Redirect to list if currently viewing this contract
-      if (selectedContractId === id) {
-        setSelectedContractId(null);
-        setActiveTab('list');
-      }
-
       console.log("✅ Kontrak berhasil dihapus");
     } catch (error) {
       console.error("❌ Gagal menghapus kontrak:", error);
@@ -298,7 +401,15 @@ export default function App() {
   
   // Save new/edited contract
   const handleSaveContract = async (saved: KontrakFisik) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'write')) {
+      alert('Anda tidak memiliki izin untuk menambah/mengubah kontrak');
+      return;
+    }
+
     try {
+      const isEdit = contracts.some(c => c.id === saved.id);
+
       // Save to Firestore
       await setDoc(doc(db, "kontrak", saved.id), {
         ...saved,
@@ -306,10 +417,9 @@ export default function App() {
       });
 
       // Update local state
-      if (contractToEdit) {
+      if (isEdit) {
         // Editing
         setContracts(contracts.map((c: KontrakFisik) => c.id === saved.id ? saved : c));
-        setContractToEdit(null);
         await addLog('UPDATE', saved, `Mengubah rincian data berkas kontrak "${saved.namaPaket}"`);
       } else {
         // Inserting new
@@ -318,8 +428,6 @@ export default function App() {
       }
 
       console.log("✅ Data berhasil disimpan ke Firestore");
-      setSelectedContractId(saved.id);
-      setActiveTab('detail');
     } catch (error) {
       console.error("❌ Gagal menyimpan ke Firestore:", error);
       alert("Gagal menyimpan kontrak");
@@ -334,6 +442,12 @@ export default function App() {
     status: KontrakFisik['status'],
     catatan: string
   ) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'write')) {
+      alert('Anda tidak memiliki izin untuk mengubah progres kontrak');
+      return;
+    }
+
     try {
       const found = contracts.find((c: KontrakFisik) => c.id === id);
       if (!found) return;
@@ -364,6 +478,12 @@ export default function App() {
 
   // Add Adendum	
   const handleAddAdendum = async (id: string, adendumOmit: Omit<AdendumKontrak, 'id'>) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'write')) {
+      alert('Anda tidak memiliki izin untuk menambah adendum');
+      return;
+    }
+
     try {
       const found = contracts.find((c: KontrakFisik) => c.id === id);
       if (!found) return;
@@ -425,6 +545,12 @@ export default function App() {
 
   // Add Attachment
   const handleAddLampiran = async (id: string, lampiranOmit: Omit<DokumenLampiran, 'id'>) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'write')) {
+      alert('Anda tidak memiliki izin untuk menambah lampiran');
+      return;
+    }
+
     try {
       const found = contracts.find((c: KontrakFisik) => c.id === id);
       if (!found) return;
@@ -457,6 +583,12 @@ export default function App() {
 
   // Delete Attachment
   const handleDeleteLampiran = async (id: string, lampiranId: string) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'delete')) {
+      alert('Anda tidak memiliki izin untuk menghapus lampiran');
+      return;
+    }
+
     try {
       const found = contracts.find((c: KontrakFisik) => c.id === id);
       if (!found) return;
@@ -485,31 +617,34 @@ export default function App() {
     }
   };
 
-  // Get currently selected contract
-  const selectedContract = contracts.find(c => c.id === selectedContractId);
-
   // Helper for Breadcrumbs
   const getBreadcrumbs = () => {
-    const base = [<span key="home" className="hover:text-amber-600 transition cursor-pointer" onClick={() => setActiveTab('dashboard')}>SIM-KONTRAK</span>];
-    if (activeTab === 'dashboard') {
+    const base = [<span key="home" className="hover:text-amber-600 transition cursor-pointer" onClick={() => navigate('/dashboard')}>SIM-KONTRAK</span>];
+    
+    if (location.pathname === '/dashboard') {
       base.push(<span key="divider1">/</span>);
       base.push(<span key="curr" className="font-bold text-slate-800">Dasbor Utama</span>);
-    } else if (activeTab === 'list') {
+    } else if (location.pathname === '/kontrak') {
       base.push(<span key="divider1">/</span>);
       base.push(<span key="curr" className="font-bold text-slate-800">Daftar Kontrak</span>);
-    } else if (activeTab === 'input') {
+    } else if (location.pathname === '/kontrak/tambah') {
       base.push(<span key="divider1">/</span>);
-      base.push(<span key="step" className="hover:text-amber-600 transition cursor-pointer" onClick={() => setActiveTab('list')}>Daftar Kontrak</span>);
+      base.push(<span key="step" className="hover:text-amber-600 transition cursor-pointer" onClick={() => navigate('/kontrak')}>Daftar Kontrak</span>);
       base.push(<span key="divider2">/</span>);
-      base.push(<span key="curr" className="font-bold text-slate-800">{contractToEdit ? 'Edit Berkas' : 'Input Berkas'}</span>);
-    } else if (activeTab === 'detail') {
+      base.push(<span key="curr" className="font-bold text-slate-800">Input Berkas</span>);
+    } else if (location.pathname.startsWith('/kontrak/')) {
+      const contractId = location.pathname.split('/')[2];
+      const contract = contracts.find(c => c.id === contractId);
       base.push(<span key="divider1">/</span>);
-      base.push(<span key="step" className="hover:text-amber-600 transition cursor-pointer" onClick={() => setActiveTab('list')}>Daftar Kontrak</span>);
+      base.push(<span key="step" className="hover:text-amber-600 transition cursor-pointer" onClick={() => navigate('/kontrak')}>Daftar Kontrak</span>);
       base.push(<span key="divider2">/</span>);
-      base.push(<span key="curr" className="font-bold text-slate-800 truncate max-w-[200px]" title={selectedContract?.namaPaket}>{selectedContract?.id}</span>);
-    } else if (activeTab === 'logs') {
+      base.push(<span key="curr" className="font-bold text-slate-800 truncate max-w-[200px]" title={contract?.namaPaket}>{contractId}</span>);
+    } else if (location.pathname === '/log-aktivitas') {
       base.push(<span key="divider1">/</span>);
       base.push(<span key="curr" className="font-bold text-slate-800">Log Aktivitas</span>);
+    } else if (location.pathname === '/hak-akses') {
+      base.push(<span key="divider1">/</span>);
+      base.push(<span key="curr" className="font-bold text-slate-800">Hak Akses</span>);
     }
     return base;
   };
@@ -548,41 +683,64 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
+        {/* SECTION: MANAJEMEN KONTRAK */}
         <div className="px-5 py-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
           Manajemen Kontrak
         </div>
         
         <button
-          onClick={() => { setActiveTab('dashboard'); setSelectedContractId(null); setIsMobileSidebarOpen(false); }}
-          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${activeTab === 'dashboard' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          onClick={() => { navigate('/dashboard'); setIsMobileSidebarOpen(false); }}
+          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${location.pathname === '/dashboard' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
         >
           <LayoutDashboard className="w-4 h-4 mr-3" />
           Dasbor Pemantauan
         </button>
 
         <button
-          onClick={() => { setActiveTab('list'); setSelectedContractId(null); setIsMobileSidebarOpen(false); }}
-          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${(activeTab === 'list' || activeTab === 'detail') ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          onClick={() => { navigate('/kontrak'); setIsMobileSidebarOpen(false); }}
+          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${(location.pathname === '/kontrak' || location.pathname.startsWith('/kontrak/')) ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
         >
           <Files className="w-4 h-4 mr-3" />
           Daftar Kontrak
         </button>
 
-        <button
-          onClick={() => { setContractToEdit(null); setActiveTab('input'); setIsMobileSidebarOpen(false); }}
-          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${activeTab === 'input' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-        >
-          <FilePlus className="w-4 h-4 mr-3" />
-          {contractToEdit ? 'Edit Kontrak Lama' : 'Input Kontrak Baru'}
-        </button>
+        {/* Hide "Input Kontrak Baru" for visitors */}
+        {currentUserRole !== 'visitor' && (
+          <button
+            onClick={() => { navigate('/kontrak/tambah'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${location.pathname === '/kontrak/tambah' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          >
+            <FilePlus className="w-4 h-4 mr-3" />
+            Input Kontrak Baru
+          </button>
+        )}
 
-        <button
-          onClick={() => { setActiveTab('logs'); setSelectedContractId(null); setIsMobileSidebarOpen(false); }}
-          className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${activeTab === 'logs' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-        >
-          <History className="w-4 h-4 mr-3" />
-          Log Aktivitas
-        </button>
+        {/* SECTION: SISTEM */}
+        <div className="px-5 py-2 mt-4 text-[10px] uppercase font-bold text-slate-500 tracking-wider border-t border-slate-800 pt-4">
+          Sistem
+        </div>
+
+        {/* Hide "Log Aktivitas" for visitors */}
+        {currentUserRole !== 'visitor' && (
+          <button
+            onClick={() => { navigate('/log-aktivitas'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${location.pathname === '/log-aktivitas' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          >
+            <History className="w-4 h-4 mr-3" />
+            Log Aktivitas
+          </button>
+        )}
+
+        {/* "Hak Akses" only for Admin */}
+        {currentUserRole === 'admin' && (
+          <button
+            onClick={() => { navigate('/hak-akses'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center px-5 py-2.5 text-xs transition-all ${location.pathname === '/hak-akses' ? 'bg-amber-400 text-slate-950 font-bold shadow-inner' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+          >
+            <Shield className="w-4 h-4 mr-3" />
+            Hak Akses
+          </button>
+        )}
 
         <div className="px-5 mt-6 py-3 text-xs text-slate-400 space-y-1.5 border-t border-slate-800">
           <p className="font-bold text-slate-300 leading-snug">Seksi Pembangunan Jalan Dan Jembatan</p>
@@ -598,7 +756,11 @@ export default function App() {
           </div>
           <div className="flex-1">
             <p className="text-white text-xs font-semibold leading-none truncate">{user?.email || 'Admin Dinas'}</p>
-            <p className="text-[9px] text-slate-500 mt-1 italic">Status: Online</p>
+            <p className="text-[9px] text-slate-500 mt-1 italic">
+              Role: <span className={`font-bold ${currentUserRole === 'admin' ? 'text-red-400' : currentUserRole === 'user' ? 'text-blue-400' : 'text-gray-400'}`}>
+                {currentUserRole === 'admin' ? 'Admin' : currentUserRole === 'user' ? 'User' : 'Visitor'}
+              </span>
+            </p>
           </div>
         </div>
         
@@ -705,120 +867,127 @@ export default function App() {
               {getBreadcrumbs()}
             </div>
           </div>
-
-          {/* Quick info panel / Current budget year info */}
-          <div className="flex items-center gap-3 text-xs font-medium flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 hidden sm:inline">Kabupaten/Kota:</span>
-              <select
-                value={selectedRegion}
-                onChange={(e) => setSelectedRegion(e.target.value)}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded border border-slate-300 px-2.5 py-1 text-[11px] focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer transition"
-              >
-                <option value="Semua">Semua Wilayah</option>
-                {uniqueRegions.map(region => (
-                  <option key={region} value={region}>{region}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 hidden sm:inline">Tahun Anggaran:</span>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded border border-slate-300 px-2.5 py-1 text-[11px] focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer transition"
-              >
-                <option value="Semua">Semua Tahun</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-                <option value="2028">2028</option>
-                <option value="2029">2029</option>
-                <option value="2030">2030</option>
-              </select>
-            </div>
-          </div>
         </header>
 
         {/* Content Container with High Density Spacing */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {activeTab === 'dashboard' && (
-            <DashboardView 
-              contracts={filteredContracts} 
-              onSelectContract={handleSelectContract}
-              onNavigateToTab={(tab) => {
-                setActiveTab(tab);
-                if (tab === 'input') setContractToEdit(null);
-              }}
-            />
-          )}
-
-          {activeTab === 'list' && (
-            <ContractList 
-              contracts={filteredContracts} 
-              onSelectContract={handleSelectContract}
-              onNavigateToInput={() => {
-                setContractToEdit(null);
-                setActiveTab('input');
-              }}
-              onDeleteContract={handleDeleteContract}
-            />
-          )}
-
-          {activeTab === 'detail' && selectedContract && (
-            <ContractDetail 
-              contract={selectedContract}
-              onBack={() => setActiveTab('list')}
-              onEdit={handleEditContract}
-              onDelete={handleDeleteContract}
-              onUpdateProgress={handleUpdateProgress}
-              onAddAdendum={handleAddAdendum}
-              onAddLampiran={handleAddLampiran}
-              onDeleteLampiran={handleDeleteLampiran}
-            />
-          )}
-
-          {activeTab === 'input' && (
-            <ContractForm 
-              initialContract={contractToEdit || undefined}
-              onSave={handleSaveContract}
-              onCancel={() => {
-                if (contractToEdit) {
-                  setActiveTab('detail');
-                } else {
-                  setActiveTab('list');
-                }
-                setContractToEdit(null);
-              }}
-            />
-          )}
-
-          {activeTab === 'logs' && (
-            <ActivityLogView 
-              logs={activityLogs}
-              contracts={contracts}
-              onClearLogs={async () => {
-                try {
-                  // Delete all logs from Firestore
-                  const snapshot = await getDocs(collection(db, "activity_logs"));
-                  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, "activity_logs", docSnap.id)));
-                  await Promise.all(deletePromises);
-                  
-                  // Clear local state
-                  setActivityLogs([]);
-                  console.log("✅ Semua log aktivitas berhasil dihapus");
-                } catch (error) {
-                  console.error("❌ Gagal menghapus log:", error);
-                  alert("Gagal menghapus log aktivitas");
-                }
-              }}
-              onSelectContract={(id) => {
-                setSelectedContractId(id);
-                setActiveTab('detail');
-              }}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              
+              <Route 
+                path="/dashboard" 
+                element={
+                  <PageTransition>
+                    <DashboardPage 
+                      contracts={filteredContracts}
+                      onSelectContract={handleSelectContract}
+                    />
+                  </PageTransition>
+                } 
+              />
+              
+              <Route 
+                path="/kontrak" 
+                element={
+                  <PageTransition>
+                    <ContractsPage 
+                      contracts={filteredContracts}
+                      onDeleteContract={handleDeleteContract}
+                      userRole={currentUserRole}
+                    />
+                  </PageTransition>
+                } 
+              />
+              
+              <Route 
+                path="/kontrak/tambah" 
+                element={
+                  currentUserRole !== 'visitor' ? (
+                    <PageTransition>
+                      <ContractFormPage 
+                        contracts={contracts}
+                        onSave={handleSaveContract}
+                      />
+                    </PageTransition>
+                  ) : (
+                    <Navigate to="/kontrak" replace />
+                  )
+                } 
+              />
+              
+              <Route 
+                path="/kontrak/:id" 
+                element={
+                  <PageTransition>
+                    <ContractDetailPage 
+                      contracts={contracts}
+                      onDelete={handleDeleteContract}
+                      onUpdateProgress={handleUpdateProgress}
+                      onAddAdendum={handleAddAdendum}
+                      onAddLampiran={handleAddLampiran}
+                      onDeleteLampiran={handleDeleteLampiran}
+                      userRole={currentUserRole}
+                    />
+                  </PageTransition>
+                } 
+              />
+              
+              <Route 
+                path="/log-aktivitas" 
+                element={
+                  currentUserRole !== 'visitor' ? (
+                    <PageTransition>
+                      <ActivityLogsPage 
+                        logs={activityLogs}
+                        contracts={contracts}
+                        onClearLogs={async () => {
+                          // Check permission
+                          if (!hasPermission(currentUserRole, 'delete')) {
+                            alert('Anda tidak memiliki izin untuk menghapus log aktivitas');
+                            return;
+                          }
+                          
+                          if (!confirm('Apakah Anda yakin ingin menghapus semua log aktivitas?')) return;
+                          try {
+                            const snapshot = await getDocs(collection(db, "activity_logs"));
+                            const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, "activity_logs", docSnap.id)));
+                            await Promise.all(deletePromises);
+                            setActivityLogs([]);
+                            console.log("✅ Semua log aktivitas berhasil dihapus");
+                          } catch (error) {
+                            console.error("❌ Gagal menghapus log:", error);
+                            alert("Gagal menghapus log aktivitas");
+                          }
+                        }}
+                      />
+                    </PageTransition>
+                  ) : (
+                    <Navigate to="/dashboard" replace />
+                  )
+                } 
+              />
+              
+              <Route 
+                path="/hak-akses" 
+                element={
+                  currentUserRole === 'admin' ? (
+                    <PageTransition>
+                      <AccessManagementPage 
+                        users={appUsers}
+                        onUpdateUserRole={handleUpdateUserRole}
+                        onAddUser={handleAddUser}
+                        onDeleteUser={handleDeleteUser}
+                        onRefresh={handleRefreshUsers}
+                      />
+                    </PageTransition>
+                  ) : (
+                    <Navigate to="/dashboard" replace />
+                  )
+                } 
+              />
+            </Routes>
+          </AnimatePresence>
         </main>
 
         {/* Compact Footer */}
@@ -836,3 +1005,14 @@ export default function App() {
     </div>
   );
 }
+
+// Main App wrapper with Router
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+export default App;

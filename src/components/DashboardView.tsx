@@ -77,12 +77,17 @@ export default function DashboardView({ contracts, onSelectContract, onNavigateT
   return (
     <div className="space-y-6">
       {/* Professional PUPR Header Banner */}
-      <div id="welcome-banner" className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-xl shadow-2xl border border-slate-700/50">
-        {/* Decorative Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}></div>
+      <div id="welcome-banner" className="relative overflow-hidden rounded-xl shadow-2xl border border-slate-700/50">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <div 
+            className="w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url('https://i.imgur.com/PN1WH0w.jpeg')` 
+            }}
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/85 via-blue-950/80 to-slate-900/85"></div>
         </div>
         
         {/* Golden Top Border Accent */}
