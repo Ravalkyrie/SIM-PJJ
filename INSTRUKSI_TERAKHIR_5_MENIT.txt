@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════════════
+         🎯 INSTRUKSI CEPAT - FIX WEBSITE BLANK
+═══════════════════════════════════════════════════════════════════
+
+DEPLOY SUDAH BERHASIL! ✅
+Tapi website masih blank karena GitHub Pages settings belum diatur.
+
+───────────────────────────────────────────────────────────────────
+
+⚡ LANGKAH CEPAT (5 MENIT):
+
+1. Klik link ini:
+   https://github.com/Ravalkyrie/SIM-PJJ/settings/pages
+
+2. Lihat bagian "Build and deployment"
+
+3. Ubah setting:
+   - Source: Deploy from a branch
+   - Branch: gh-pages (pilih dari dropdown)
+   - Folder: / (root) (pilih dari dropdown)
+
+4. Klik tombol [Save] (hijau)
+
+5. Tunggu 2-3 menit (ada progress indicator)
+
+6. Buka website:
+   https://ravalkyrie.github.io/SIM-PJJ/
+
+7. Hard refresh browser: Ctrl + Shift + R
+
+═══════════════════════════════════════════════════════════════════
+
+✅ SELESAI! Website sekarang live dengan logo favicon yang benar!
+
+═══════════════════════════════════════════════════════════════════
+
+Kalau masih ada masalah, screenshot error di console browser (F12).

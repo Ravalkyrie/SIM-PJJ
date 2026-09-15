@@ -1,0 +1,113 @@
+═══════════════════════════════════════════════════════════════════
+    🔍 CARA CEK ERROR DI BROWSER CONSOLE
+═══════════════════════════════════════════════════════════════════
+
+MASALAH: Website tampil tapi konten kosong (area putih)
+SOLUSI: Cek error di Browser Developer Tools
+
+───────────────────────────────────────────────────────────────────
+LANGKAH 1: BUKA DEVELOPER TOOLS
+───────────────────────────────────────────────────────────────────
+
+1. Buka website: https://ravalkyrie.github.io/SIM-PJJ/
+2. Tekan tombol F12 (atau klik kanan → Inspect)
+3. Akan muncul panel Developer Tools
+
+───────────────────────────────────────────────────────────────────
+LANGKAH 2: CEK CONSOLE TAB
+───────────────────────────────────────────────────────────────────
+
+1. Klik tab "Console" di Developer Tools
+2. Cari pesan ERROR (biasanya berwarna merah)
+3. Screenshot error yang muncul
+
+CONTOH ERROR YANG MUNGKIN MUNCUL:
+
+❌ "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+   → Masalah: API endpoint tidak ditemukan
+   → Solusi: Perlu update API URL
+
+❌ "Uncaught TypeError: Cannot read property of undefined"
+   → Masalah: Komponen mencoba akses data yang tidak ada
+   → Solusi: Perlu fix error handling di code
+
+❌ "404 Not Found"
+   → Masalah: File tidak ditemukan
+   → Solusi: Perlu deploy ulang
+
+❌ "Router base path mismatch"
+   → Masalah: Base path salah
+   → Solusi: Update vite.config.js
+
+───────────────────────────────────────────────────────────────────
+LANGKAH 3: CEK NETWORK TAB
+───────────────────────────────────────────────────────────────────
+
+1. Klik tab "Network" di Developer Tools
+2. Refresh halaman dengan Ctrl + Shift + R
+3. Perhatikan request yang FAILED (warna merah)
+4. Klik request yang failed untuk detail
+
+YANG PERLU DICEK:
+
+✓ Status Code:
+   - 200 = OK ✅
+   - 404 = File tidak ditemukan ❌
+   - 500 = Server error ❌
+   - 403 = Akses ditolak ❌
+
+✓ Request URL:
+   - Apakah URL benar?
+   - Apakah mengarah ke domain yang benar?
+
+✓ Response:
+   - Apa isi response-nya?
+   - Ada error message?
+
+───────────────────────────────────────────────────────────────────
+LANGKAH 4: CEK ELEMENTS TAB
+───────────────────────────────────────────────────────────────────
+
+1. Klik tab "Elements" di Developer Tools
+2. Cari elemen dengan id="app" atau class="content"
+3. Apakah ada konten di dalamnya?
+
+JIKA KOSONG:
+<div id="app">
+  <!-- kosong -->
+</div>
+→ Berarti Vue.js tidak mounting dengan benar
+
+JIKA ADA KONTEN:
+<div id="app">
+  <div class="content">...</div>
+</div>
+→ Berarti masalah di CSS (konten ada tapi tidak tampil)
+
+───────────────────────────────────────────────────────────────────
+LANGKAH 5: KIRIM INFO KE DEVELOPER
+───────────────────────────────────────────────────────────────────
+
+Setelah dapat info error, screenshot dan kirim:
+
+📸 Screenshot Console tab (error merah)
+📸 Screenshot Network tab (failed requests)
+📸 Screenshot Elements tab (struktur HTML)
+
+Dengan info ini, developer bisa fix masalah dengan cepat!
+
+═══════════════════════════════════════════════════════════════════
+📌 QUICK TEST: Coba akses URL ini langsung
+═══════════════════════════════════════════════════════════════════
+
+https://ravalkyrie.github.io/SIM-PJJ/#/
+https://ravalkyrie.github.io/SIM-PJJ/#/dashboard
+https://ravalkyrie.github.io/SIM-PJJ/dashboard
+
+Jika salah satu URL di atas berhasil tampil konten:
+→ Berarti masalah di routing configuration
+→ Perlu update router base path atau mode (hash vs history)
+
+═══════════════════════════════════════════════════════════════════
+Last Updated: 16 September 2026, 02:25 WIB
+═══════════════════════════════════════════════════════════════════

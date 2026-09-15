@@ -1,0 +1,116 @@
+================================================================================
+📝 CARA EDIT MANUAL FAVICON - LOKASI FILE
+================================================================================
+
+FILE YANG PERLU DIEDIT:
+================================================================================
+
+📄 FILE: C:\New folder\Manajemen\index.html
+📍 LOKASI: Line 5
+
+CARA BUKA FILE:
+================================================================================
+
+OPSI 1 - MENGGUNAKAN VS CODE:
+1. Buka VS Code
+2. File → Open File
+3. Navigate ke: C:\New folder\Manajemen\
+4. Pilih file: index.html
+5. Cari line 5
+
+OPSI 2 - MENGGUNAKAN NOTEPAD:
+1. Buka Windows Explorer
+2. Navigate ke: C:\New folder\Manajemen\
+3. Klik kanan file index.html
+4. Pilih "Open with" → Notepad atau Notepad++
+5. Cari line 5
+
+OPSI 3 - DOUBLE CLICK:
+1. Buka folder: C:\New folder\Manajemen\
+2. Double-click file: index.html
+3. Akan terbuka di default text editor Anda
+
+================================================================================
+APA YANG PERLU DIUBAH:
+================================================================================
+
+LINE 5 SAAT INI:
+    <link rel="icon" type="image/png" href="https://images.seeklogo.com/logo-png/35/1/pu-logo-png_seeklogo-355609.png" />
+
+UBAH MENJADI:
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+================================================================================
+PENJELASAN PERUBAHAN:
+================================================================================
+
+YANG DIUBAH:
+1. type="image/png" → type="image/svg+xml"
+   (Karena favicon kita adalah file SVG, bukan PNG)
+
+2. href="https://images.seeklogo.com/..." → href="./favicon.svg"
+   (Dari external URL ke file lokal dengan relative path)
+
+MENGAPA RELATIVE PATH (./favicon.svg)?
+- Bekerja dengan GitHub Pages subpath deployment
+- ./favicon.svg akan resolve ke /SIM-PJJ/favicon.svg otomatis
+- Absolute path (/favicon.svg) akan gagal di GitHub Pages
+
+================================================================================
+LANGKAH DETAIL EDIT:
+================================================================================
+
+1. BUKA FILE:
+   C:\New folder\Manajemen\index.html
+
+2. CARI LINE 5:
+   Ctrl + G (di VS Code) atau scroll ke baris 5
+
+3. HAPUS LINE 5 YANG ADA:
+   <link rel="icon" type="image/png" href="https://images.seeklogo.com/logo-png/35/1/pu-logo-png_seeklogo-355609.png" />
+
+4. GANTI DENGAN:
+   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+5. SAVE FILE:
+   Ctrl + S atau File → Save
+
+6. CLOSE FILE
+
+================================================================================
+SETELAH EDIT SELESAI:
+================================================================================
+
+Lanjutkan dengan 3 command deployment:
+
+1️⃣  git add . && git add -A
+2️⃣  git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path" && git push origin main
+3️⃣  npm run build && npm run deploy
+
+================================================================================
+CATATAN PENTING:
+================================================================================
+
+⚠️  JANGAN EDIT FILE: dist/index.html
+    File ini auto-generated saat build, edit akan hilang!
+
+✅  EDIT FILE: index.html (di root folder)
+    Ini adalah source file yang benar
+
+📁 LOKASI FILE FAVICON:
+    C:\New folder\Manajemen\public\favicon.svg
+
+================================================================================
+VERIFIKASI SETELAH EDIT:
+================================================================================
+
+PASTIKAN LINE 5 SEKARANG BERBUNYI:
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+CEK:
+✓ Tidak ada typo
+✓ href="./favicon.svg" (pakai titik dan slash)
+✓ type="image/svg+xml" (bukan image/png)
+✓ Ada closing tag />
+
+================================================================================
