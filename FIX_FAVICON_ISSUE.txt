@@ -1,0 +1,85 @@
+================================================================================
+FIX: FAVICON TIDAK MUNCUL DI GITHUB PAGES
+Fix: Favicon Not Showing on GitHub Pages
+================================================================================
+
+MASALAH / PROBLEM:
+- Logo PU tidak muncul di browser tab setelah deploy ke GitHub Pages
+- Browser menampilkan icon default instead of PU logo
+- PU logo not showing in browser tab after GitHub Pages deployment
+
+PENYEBAB / ROOT CAUSE:
+- Path favicon di index.html menggunakan absolute path: /favicon.svg
+- Absolute path tidak bekerja di GitHub Pages dengan base URL subpath
+- GitHub Pages mencoba load dari: https://ravalkyrie.github.io/favicon.svg
+- Seharusnya load dari: https://ravalkyrie.github.io/SIM-PJJ/favicon.svg
+
+SOLUSI / SOLUTION:
+Mengubah path favicon dari absolute ke relative path:
+
+SEBELUM / BEFORE:
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+SESUDAH / AFTER:
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+FILE YANG DIUBAH / FILES CHANGED:
+- C:/New folder/Manajemen/index.html (line 5)
+
+PENJELASAN TEKNIS / TECHNICAL EXPLANATION:
+1. Vite config menggunakan base: '/SIM-PJJ/' untuk production
+2. Absolute path (/) akan resolve ke root domain (ravalkyrie.github.io/)
+3. Relative path (./) akan resolve ke current directory termasuk base URL
+4. Saat build, Vite akan otomatis adjust relative path ke /SIM-PJJ/favicon.svg
+
+CARA DEPLOY ULANG / RE-DEPLOYMENT STEPS:
+================================================================================
+
+1. COMMIT PERUBAHAN / COMMIT CHANGES:
+   cd "C:\New folder\Manajemen"
+   git add index.html
+   git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path"
+   git push origin main
+
+2. BUILD & DEPLOY:
+   npm run build
+   npm run deploy
+
+3. TUNGGU 2-3 MENIT / WAIT 2-3 MINUTES:
+   GitHub Pages perlu waktu untuk propagasi
+
+4. TEST HASIL / TEST RESULT:
+   - Buka: https://ravalkyrie.github.io/SIM-PJJ/
+   - Periksa browser tab, logo PU seharusnya muncul
+   - Clear browser cache jika masih belum muncul: Ctrl + Shift + Delete
+
+5. JIKA MASIH BERMASALAH / IF STILL NOT WORKING:
+   - Hard refresh: Ctrl + Shift + R
+   - Clear cache dan reload
+   - Coba browser berbeda / Try different browser
+
+VERIFIKASI / VERIFICATION:
+================================================================================
+
+✅ Favicon file exists: C:/New folder/Manajemen/public/favicon.svg
+✅ Path changed to relative: ./favicon.svg
+✅ Vite config base URL correct: /SIM-PJJ/
+✅ Ready to deploy
+
+CATATAN PENTING / IMPORTANT NOTES:
+================================================================================
+
+1. SELALU GUNAKAN RELATIVE PATH untuk assets di GitHub Pages dengan subpath
+2. Absolute path (/) HANYA bekerja jika deploy ke root domain
+3. Vite otomatis handle relative path saat build dengan base URL
+4. File favicon.svg harus ada di folder public/
+5. Setelah deploy, mungkin perlu clear browser cache untuk melihat perubahan
+
+COMMAND LENGKAP DEPLOY / COMPLETE DEPLOY COMMAND:
+================================================================================
+
+cd "C:\New folder\Manajemen" && git add index.html && git commit -m "Fix: Favicon tidak muncul - ubah ke relative path" && git push origin main && npm run build && npm run deploy
+
+================================================================================
+SELESAI / COMPLETED: 2026-09-16
+================================================================================

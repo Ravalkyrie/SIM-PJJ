@@ -1,0 +1,20 @@
+================================================================================
+⚡ SOLUSI TERCEPAT - GIT CHECKOUT ERROR
+================================================================================
+
+COPY 5 COMMAND INI SATU PER SATU:
+
+1️⃣  cd "C:\New folder\Manajemen" && git stash
+
+2️⃣  git checkout main
+
+3️⃣  git stash pop
+
+4️⃣  git add . && git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path" && git push origin main
+
+5️⃣  npm run build && npm run deploy
+
+================================================================================
+SELESAI! Tunggu 2-3 menit lalu cek:
+https://ravalkyrie.github.io/SIM-PJJ/
+================================================================================

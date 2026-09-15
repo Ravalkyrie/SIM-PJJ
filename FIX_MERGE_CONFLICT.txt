@@ -1,0 +1,58 @@
+================================================================================
+🔧 FIX MERGE CONFLICT - LANJUTKAN DEPLOYMENT
+================================================================================
+
+SITUASI SAAT INI (DARI SCREENSHOT):
+✅ Sudah di branch main
+⚠️  Conflict di INDEX_DOKUMENTASI.txt (deleted in upstream, modified in stash)
+✅ dist/index.html sudah staged
+📄 13 file dokumentasi belum di-add
+
+SOLUSI CEPAT - COPY 3 COMMAND INI:
+================================================================================
+
+1️⃣  RESOLVE CONFLICT & ADD SEMUA FILE:
+    git add . && git add -A
+
+2️⃣  COMMIT & PUSH:
+    git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path" && git push origin main
+
+3️⃣  BUILD & DEPLOY:
+    npm run build && npm run deploy
+
+================================================================================
+PENJELASAN:
+================================================================================
+
+Command 1 (git add . && git add -A):
+  → Menandai conflict sebagai resolved
+  → Menambahkan semua file baru (dokumentasi)
+  → Menambahkan file yang sudah dimodifikasi (index.html)
+
+Command 2 (commit & push):
+  → Commit semua perubahan dengan message yang jelas
+  → Push ke GitHub repository
+
+Command 3 (build & deploy):
+  → Build project dengan Vite
+  → Deploy ke GitHub Pages branch gh-pages
+
+================================================================================
+CATATAN CONFLICT INDEX_DOKUMENTASI.txt:
+================================================================================
+
+Conflict ini tidak masalah karena:
+- File ini di-delete di upstream (branch main)
+- File ini di-modify di stash (branch update-background-image)
+- Dengan git add, kita simpan versi yang dimodifikasi
+- Ini adalah behavior yang diinginkan (keep dokumentasi terbaru)
+
+================================================================================
+SETELAH SELESAI:
+================================================================================
+
+⏱️  Tunggu 2-3 menit
+✅ Buka: https://ravalkyrie.github.io/SIM-PJJ/
+🎨 Logo PU akan muncul di browser tab!
+
+================================================================================

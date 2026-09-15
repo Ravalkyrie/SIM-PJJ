@@ -1,0 +1,85 @@
+================================================================================
+PANDUAN DEPLOY FAVICON FIX - LANGKAH MANUAL
+================================================================================
+
+MASALAH YANG TERJADI:
+Anda sedang di branch 'update-background-image', bukan di 'main'
+Commit gagal karena 'no changes added to commit'
+
+SOLUSI:
+Jalankan command berikut SATU PER SATU di CMD/Terminal
+
+================================================================================
+STEP-BY-STEP COMMANDS (COPY SATU PER SATU):
+================================================================================
+
+1. Masuk ke folder project:
+   cd "C:\New folder\Manajemen"
+
+2. Cek branch saat ini:
+   git branch
+
+3. Pindah ke branch main:
+   git checkout main
+
+4. Pull perubahan terbaru dari remote:
+   git pull origin main
+
+5. Cek status file yang berubah:
+   git status
+
+6. Add file index.html:
+   git add index.html
+
+7. Add file dokumentasi favicon:
+   git add FIX_FAVICON_ISSUE.txt DEPLOY_FAVICON_FIX.txt RINGKASAN_FAVICON_FIX.txt ACTION_FAVICON_FIX.txt FAVICON_FIX_SUMMARY.txt INDEX_DOKUMENTASI.txt
+
+8. Cek status lagi (pastikan ada yang staged):
+   git status
+
+9. Commit dengan message:
+   git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path"
+
+10. Push ke GitHub:
+    git push origin main
+
+11. Build project:
+    npm run build
+
+12. Deploy ke GitHub Pages:
+    npm run deploy
+
+================================================================================
+ATAU GUNAKAN BATCH FILE:
+================================================================================
+
+Sudah dibuat file: DEPLOY_FAVICON_MANUAL.bat
+Double-click file tersebut atau jalankan:
+   DEPLOY_FAVICON_MANUAL.bat
+
+================================================================================
+VERIFIKASI SETELAH DEPLOY:
+================================================================================
+
+1. Tunggu 2-3 menit
+2. Buka: https://ravalkyrie.github.io/SIM-PJJ/
+3. Periksa logo PU di browser tab
+4. Jika belum muncul: Ctrl + Shift + R (hard refresh)
+
+================================================================================
+TROUBLESHOOTING:
+================================================================================
+
+Jika masih di branch salah:
+   git checkout main
+
+Jika ada conflict saat pull:
+   git stash
+   git pull origin main
+   git stash pop
+
+Jika file tidak berubah:
+   Pastikan file index.html sudah diedit dengan:
+   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+================================================================================

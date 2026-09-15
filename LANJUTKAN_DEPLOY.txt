@@ -1,0 +1,15 @@
+╔════════════════════════════════════════════════════════════════╗
+║          🚀 LANJUTKAN DEPLOYMENT (3 COMMAND)                   ║
+║         Conflict sudah handled, tinggal commit!                ║
+╚════════════════════════════════════════════════════════════════╝
+
+git add . && git add -A
+
+git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path" && git push origin main
+
+npm run build && npm run deploy
+
+╔════════════════════════════════════════════════════════════════╗
+║ SELESAI! Tunggu 2-3 menit, lalu test:                         ║
+║ https://ravalkyrie.github.io/SIM-PJJ/                          ║
+╚════════════════════════════════════════════════════════════════╝

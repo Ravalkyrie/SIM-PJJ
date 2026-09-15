@@ -1,0 +1,70 @@
+================================================================================
+🔧 FIX: Git Checkout Error - LOCAL CHANGES
+================================================================================
+
+MASALAH DARI SCREENSHOT:
+error: Your local changes to the following files would be overwritten by checkout:
+       INDEX_DOKUMENTASI.txt
+Please commit your changes or stash them before you switch branches.
+
+SOLUSI - GUNAKAN COMMAND INI:
+================================================================================
+
+LANGKAH 1: STASH PERUBAHAN LOKAL
+-----------------------------------
+cd "C:\New folder\Manajemen" && git stash
+
+
+LANGKAH 2: PINDAH KE BRANCH MAIN
+-----------------------------------
+git checkout main
+
+
+LANGKAH 3: APPLY STASH KEMBALI
+-----------------------------------
+git stash pop
+
+
+LANGKAH 4: COMMIT SEMUA PERUBAHAN (FAVICON FIX + INDEX_DOKUMENTASI)
+-----------------------------------
+git add index.html FIX_FAVICON_ISSUE.txt DEPLOY_FAVICON_FIX.txt RINGKASAN_FAVICON_FIX.txt ACTION_FAVICON_FIX.txt FAVICON_FIX_SUMMARY.txt INDEX_DOKUMENTASI.txt DEPLOY_FAVICON_MANUAL.bat CARA_DEPLOY_FAVICON_MANUAL.txt QUICK_FIX_FAVICON.txt README_FAVICON_FIX.txt START_DEPLOY_FAVICON.txt && git commit -m "Fix: Favicon tidak muncul di GitHub Pages - ubah ke relative path" && git push origin main
+
+
+LANGKAH 5: BUILD & DEPLOY
+-----------------------------------
+npm run build && npm run deploy
+
+
+================================================================================
+ATAU ALTERNATIF - COMMIT DULU SEBELUM PINDAH BRANCH:
+================================================================================
+
+LANGKAH 1: COMMIT DI BRANCH SAAT INI
+-----------------------------------
+cd "C:\New folder\Manajemen" && git add . && git commit -m "Update dokumentasi favicon fix"
+
+
+LANGKAH 2: PINDAH KE BRANCH MAIN
+-----------------------------------
+git checkout main
+
+
+LANGKAH 3: MERGE DARI BRANCH update-background-image
+-----------------------------------
+git merge update-background-image
+
+
+LANGKAH 4: PUSH KE GITHUB
+-----------------------------------
+git push origin main
+
+
+LANGKAH 5: BUILD & DEPLOY
+-----------------------------------
+npm run build && npm run deploy
+
+
+================================================================================
+REKOMENDASI: GUNAKAN OPSI PERTAMA (STASH)
+Lebih aman dan tidak create merge commit
+================================================================================
