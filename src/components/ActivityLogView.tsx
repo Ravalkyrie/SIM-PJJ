@@ -134,7 +134,7 @@ export default function ActivityLogView({ logs, contracts, onClearLogs, onSelect
   };
 
   return (
-    <div id="activity-log-view" className="space-y-6">
+    <div id="activity-log-view" className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
       {/* Title section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-3">
