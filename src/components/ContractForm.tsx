@@ -174,16 +174,16 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       <div id="contract-form-title" className="flex items-center gap-3 pb-3 border-b border-slate-200">
         <button
           onClick={onCancel}
-          className="p-1.5 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-800 transition cursor-pointer"
+          className="p-1.5 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-800 transition cursor-pointer shrink-0"
           title="Kembali"
         >
           <ArrowLeft className="w-4 h-4 text-amber-500" />
         </button>
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+        <div className="overflow-hidden w-full">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight break-words leading-tight" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>
             {isEdit ? "Edit Dokumen Kontrak" : "Input Kontrak Pekerjaan Fisik Baru"}
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>
             {isEdit ? "Perbarui informasi kontrak fisik yang sudah terdaftar" : "Daftarkan berkas perjanjian kontrak baru bidang Bina Marga"}
           </p>
         </div>

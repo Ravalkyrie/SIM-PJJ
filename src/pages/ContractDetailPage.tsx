@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole } from '../types';
 import ContractDetail from '../components/ContractDetail';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
@@ -30,8 +30,39 @@ export default function ContractDetailPage({
 }: ContractDetailPageProps) {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
 
   const contract = contracts.find(c => c.id === id);
+
+  // Handle automatic scroll to section
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section === 'berkas-digital' && contract) {
+      // Wait for DOM to be fully rendered
+      const timer = setTimeout(() => {
+        const element = document.getElementById('berkas-digital');
+        if (element) {
+          // Calculate offset for sticky header (if any)
+          const headerOffset = 80; // Adjust based on your header height
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+
+          // Add subtle highlight effect
+          element.classList.add('highlight-section');
+          setTimeout(() => {
+            element.classList.remove('highlight-section');
+          }, 2000);
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, contract]);
 
   const handleBack = () => {
     navigate('/kontrak');

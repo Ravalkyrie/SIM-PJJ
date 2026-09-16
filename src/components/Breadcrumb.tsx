@@ -55,16 +55,16 @@ export default function Breadcrumb() {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <div className="flex items-center gap-2 text-xs">
+    <div className="flex items-center gap-2 text-xs overflow-x-auto whitespace-nowrap pb-1">
       {breadcrumbs.map((crumb, idx) => (
         <React.Fragment key={idx}>
-          {idx > 0 && <span className="text-slate-400">/</span>}
+          {idx > 0 && <span className="text-slate-400 shrink-0">/</span>}
           {crumb.active ? (
-            <span className="font-bold text-slate-800">{crumb.label}</span>
+            <span className="font-bold text-slate-800 break-words" style={{wordBreak: 'break-word'}}>{crumb.label}</span>
           ) : (
             <button
               onClick={crumb.onClick}
-              className="hover:text-amber-600 transition cursor-pointer text-slate-600"
+              className="hover:text-amber-600 transition cursor-pointer text-slate-600 shrink-0"
             >
               {crumb.label}
             </button>

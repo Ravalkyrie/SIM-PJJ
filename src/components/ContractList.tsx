@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { KontrakFisik, KABUPATEN_PRESETS, UserRole, DokumenLampiran } from '../types';
 import { formatBriefRupiah } from './DashboardView';
 import { 
@@ -48,6 +49,8 @@ function groupLampiranByCategory(lampiran: DokumenLampiran[]): Map<string, Dokum
 }
 
 export default function ContractList({ contracts, onSelectContract, onNavigateToInput, onDeleteContract, onDeleteAllContracts, userRole = 'user' }: ContractListProps) {
+  const navigate = useNavigate();
+  
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTahun, setSelectedTahun] = useState<string>('Semua');
@@ -119,29 +122,31 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
     <div className="space-y-4">
       {/* List Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Daftar Kontrak Pekerjaan Fisik</h1>
-          <p className="text-xs text-slate-500">Kelola, cari, dan tinjau berkas kontrak Bidang Bina Marga</p>
+        <div className="w-full sm:w-auto overflow-hidden">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight break-words leading-tight" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>Daftar Kontrak Pekerjaan Fisik</h1>
+          <p className="text-xs text-slate-500 break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>Kelola, cari, dan tinjau berkas kontrak Bidang Bina Marga</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           {userRole !== 'visitor' && contracts.length > 0 && onDeleteAllContracts && (
             <button
               id="btn-delete-all-contracts"
               onClick={() => setShowDeleteAllConfirm(true)}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 font-bold text-xs rounded border border-red-200 shadow-sm transition shrink-0 cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 font-bold text-xs rounded border border-red-200 shadow-sm transition shrink-0 cursor-pointer whitespace-nowrap"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              Hapus Semua Kontrak
+              <Trash2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Hapus Semua Kontrak</span>
+              <span className="sm:hidden">Hapus Semua</span>
             </button>
           )}
           {userRole !== 'visitor' && (
             <button
               id="btn-add-contract"
               onClick={onNavigateToInput}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-xs rounded shadow-md transition shrink-0 cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-xs rounded shadow-md transition shrink-0 cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 text-amber-400" />
-              Input Kontrak Baru
+              <Plus className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="hidden sm:inline">Input Kontrak Baru</span>
+              <span className="sm:hidden">Input Baru</span>
             </button>
           )}
         </div>
@@ -159,7 +164,7 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari berdasarkan nama paket, no kontrak, kontraktor pelaksana, PPK..."
+            placeholder="Cari berdasarkan nama paket, no kontrak, kontraktor..."
             className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none font-sans text-slate-900 transition-colors"
           />
         </div>
@@ -351,13 +356,9 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                                     {visibleCategories.map(([category, files]) => (
                                       <button
                                         key={category}
-                                        onClick={() => setCategoryModal({ 
-                                          category, 
-                                          files, 
-                                          contractName: contract.namaPaket 
-                                        })}
+                                        onClick={() => navigate(`/kontrak/${contract.id}?section=berkas-digital`)}
                                         className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-[10px] font-semibold transition cursor-pointer"
-                                        title={`Klik untuk melihat ${files.length} file dalam kategori "${category}"`}
+                                        title={`Klik untuk ke halaman detail dan lihat ${files.length} file dalam kategori "${category}"`}
                                       >
                                         <FolderOpen className="w-3 h-3" />
                                         <span className="max-w-[140px] truncate">{category}</span>
@@ -368,13 +369,9 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                                     ))}
                                     {remainingCount > 0 && (
                                       <button
-                                        onClick={() => setCategoryModal({ 
-                                          category: 'Semua Kategori', 
-                                          files: contract.lampiran, 
-                                          contractName: contract.namaPaket 
-                                        })}
+                                        onClick={() => navigate(`/kontrak/${contract.id}?section=berkas-digital`)}
                                         className="flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300 rounded text-[10px] font-semibold transition cursor-pointer"
-                                        title="Lihat semua kategori"
+                                        title="Lihat semua kategori di halaman detail"
                                       >
                                         <span>+{remainingCount} kategori</span>
                                       </button>
@@ -495,15 +492,15 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                     )}
                   </div>
 
-                  <div className="space-y-1">
-                    <h4 className="font-bold text-slate-900 leading-normal line-clamp-2 text-xs">
+                  <div className="space-y-1.5 overflow-hidden">
+                    <h4 className="font-bold text-slate-900 leading-snug text-xs break-words overflow-wrap-anywhere" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>
                       {contract.namaPaket}
                     </h4>
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 flex-wrap">
-                      <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                      <span className="truncate">{contract.kabupatenKota} — {contract.lokasiRuas}</span>
+                    <p className="text-[11px] text-slate-500 flex items-start gap-1 flex-wrap leading-relaxed overflow-hidden">
+                      <MapPin className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
+                      <span className="flex-1 min-w-0 break-words" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>{contract.kabupatenKota} — {contract.lokasiRuas}</span>
                       {contract.panjangEfektif && (
-                        <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1 py-0.2 rounded border border-indigo-100 font-bold shrink-0">
+                        <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1 py-0.2 rounded border border-indigo-100 font-bold shrink-0 whitespace-nowrap">
                           Pj: {contract.panjangEfektif}
                         </span>
                       )}
@@ -514,7 +511,7 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                           <FileText className="w-3 h-3 text-slate-400" />
                           ({contract.lampiran.length}):
                         </span>
-                        {contract.lampiran.map((lamp) => {
+                        {Array.from(groupLampiranByCategory(contract.lampiran)).map(([category, files]) => {
                           const typeColors: Record<string, string> = {
                             'SPK': 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
                             'SPMK': 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
@@ -523,31 +520,18 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                             'FHO': 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100',
                             'Lainnya': 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                           };
-                          const color = typeColors[lamp.tipeDokumen] || 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100';
+                          const color = typeColors[category] || 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100';
                           return (
-                            <span key={lamp.id} className="inline-flex items-center">
-                              {lamp.googleDriveUrl ? (
-                                <a
-                                  href={lamp.googleDriveUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  title={`Buka & Unduh Berkas: ${lamp.namaFile}`}
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 transition ${color}`}
-                                >
-                                  <span>{lamp.tipeDokumen}</span>
-                                  <Download className="w-2.5 h-2.5 shrink-0" />
-                                </a>
-                              ) : (
-                                <button
-                                  onClick={() => showToast(`Mengunduh berkas "${lamp.namaFile}" (Simulasi)...`, 'info')}
-                                  title={`Unduh Berkas: ${lamp.namaFile}`}
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 transition ${color}`}
-                                >
-                                  <span>{lamp.tipeDokumen}</span>
-                                  <Download className="w-2.5 h-2.5 shrink-0" />
-                                </button>
-                              )}
-                            </span>
+                            <button
+                              key={category}
+                              onClick={() => setCategoryModal({ category, files, contractName: contract.namaPaket })}
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 transition ${color} cursor-pointer`}
+                              title={`Lihat ${files.length} berkas ${category}`}
+                            >
+                              <span>{category}</span>
+                              <span className="font-bold">({files.length})</span>
+                              <FolderOpen className="w-2.5 h-2.5 shrink-0" />
+                            </button>
                           );
                         })}
                       </div>
@@ -555,13 +539,13 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-slate-400 text-[9px] uppercase font-bold tracking-wider">Penyedia Jasa</p>
-                      <p className="font-semibold text-slate-700 line-clamp-1">{contract.kontraktorPelaksana}</p>
+                      <p className="font-semibold text-slate-700 break-words leading-snug" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>{contract.kontraktorPelaksana}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-slate-400 text-[9px] uppercase font-bold tracking-wider">Nilai Kontrak</p>
-                      <p className="font-bold text-slate-900">{formatBriefRupiah(contract.nilaiKontrak)}</p>
+                      <p className="font-bold text-slate-900 break-words">{formatBriefRupiah(contract.nilaiKontrak)}</p>
                     </div>
                   </div>
 

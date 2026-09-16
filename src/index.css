@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+/* Highlight animation for section scroll */
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.highlight-section {
+  animation: highlight-pulse 1s ease-in-out;
+  border-color: rgb(99, 102, 241) !important;
+}

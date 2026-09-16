@@ -633,7 +633,7 @@ export default function ContractDetail({
           </div>
 
           {/* Attachments List */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
+          <div id="berkas-digital" className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                 <Paperclip className="w-4 h-4 text-indigo-600" />

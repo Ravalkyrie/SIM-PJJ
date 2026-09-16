@@ -111,18 +111,19 @@ export default function DashboardView({ contracts, onSelectContract, onNavigateT
               </div>
               
               {/* Title & Description */}
-              <div className="text-center sm:text-left space-y-3 flex-1">
+              <div className="text-center sm:text-left space-y-3 flex-1 overflow-hidden">
                 <div className="space-y-1">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight drop-shadow-lg" 
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight drop-shadow-lg break-words" 
+                      style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}
                       title="Sistem Informasi Monitoring Kontrak Pembangunan Jalan dan Jembatan">
                     SIM-KONTRAK PJJ
                   </h1>
-                  <p className="text-yellow-300 text-sm font-semibold tracking-wide drop-shadow-md">
+                  <p className="text-yellow-300 text-sm font-semibold tracking-wide drop-shadow-md break-words" style={{wordBreak: 'break-word'}}>
                     Monitoring Jalan dan Jembatan
                   </p>
                 </div>
                 
-                <p className="text-blue-100 text-sm max-w-3xl leading-relaxed hidden sm:block">
+                <p className="text-blue-100 text-sm max-w-3xl leading-relaxed hidden sm:block break-words" style={{wordBreak: 'break-word', overflowWrap: 'anywhere'}}>
                   <span className="font-semibold text-white">Sistem Informasi Monitoring Kontrak Pembangunan Jalan dan Jembatan</span> adalah sistem informasi berbasis web yang 
                   menyediakan layanan penyimpanan dan penyajian dokumen kontrak pekerjaan fisik secara digital. Sistem ini dirancang agar 
                   dokumen yang masih aktif mudah diakses, proses monitoring lebih efektif, terintegrasi, dan mendukung pengelolaan kontrak 
@@ -136,16 +137,16 @@ export default function DashboardView({ contracts, onSelectContract, onNavigateT
               <button
                 id="btn-nav-list"
                 onClick={() => onNavigateToTab('list')}
-                className="flex-1 sm:flex-none px-4 py-2.5 bg-white/10 hover:bg-white/20 active:bg-white/5 text-white rounded-lg text-sm font-semibold border border-white/20 hover:border-white/30 transition-all duration-200 backdrop-blur-sm shadow-lg"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2.5 bg-white/10 hover:bg-white/20 active:bg-white/5 text-white rounded-lg text-xs sm:text-sm font-semibold border border-white/20 hover:border-white/30 transition-all duration-200 backdrop-blur-sm shadow-lg whitespace-nowrap"
               >
-                📋 Daftar Kontrak
+                📋 <span className="hidden xs:inline">Daftar </span>Kontrak
               </button>
               <button
                 id="btn-nav-input"
                 onClick={() => onNavigateToTab('input')}
-                className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 active:from-yellow-600 active:to-yellow-700 text-blue-900 rounded-lg text-sm font-bold shadow-xl hover:shadow-2xl transition-all duration-200 border border-yellow-300"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 active:from-yellow-600 active:to-yellow-700 text-blue-900 rounded-lg text-xs sm:text-sm font-bold shadow-xl hover:shadow-2xl transition-all duration-200 border border-yellow-300 whitespace-nowrap"
               >
-                ✨ Input Kontrak Baru
+                ✨ <span className="hidden xs:inline">Input </span>Kontrak<span className="hidden sm:inline"> Baru</span>
               </button>
             </div>
           </div>
