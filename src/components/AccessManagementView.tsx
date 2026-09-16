@@ -143,69 +143,66 @@ export default function AccessManagementView({
   const isSuperAdmin = (email: string) => email === SUPER_ADMIN_EMAIL;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 px-1 sm:px-6">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-slate-700" />
-            <h1 className="text-2xl font-bold text-slate-800">Manajemen Hak Akses</h1>
+      <div className="mb-3 sm:mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-1 sm:gap-3 min-w-0">
+            <Shield className="w-5 h-5 sm:w-8 sm:h-8 text-slate-700 flex-shrink-0" />
+            <h1 className="text-lg sm:text-2xl font-bold text-slate-800 truncate">Manajemen Hak Akses</h1>
           </div>
           <button
             onClick={handleOpenAddModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            className="flex items-center gap-0.5 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-xs sm:text-base whitespace-nowrap flex-shrink-0"
           >
-            <Plus className="w-5 h-5" />
-            Tambah User
+            <Plus className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Tambah User</span>
+            <span className="sm:hidden">Tambah</span>
           </button>
         </div>
-        <p className="text-slate-600">Kelola role dan hak akses pengguna aplikasi</p>
+        <p className="text-sm sm:text-base text-slate-600">Kelola role dan hak akses pengguna aplikasi</p>
       </div>
 
       {/* Info Boxes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-5 h-5 text-red-600" />
-            <h3 className="font-semibold text-red-800">Admin</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-4">
+          <div className="flex items-center gap-0.5 sm:gap-2 mb-1 sm:mb-2">
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
+            <h3 className="font-semibold text-red-800 text-xs sm:text-base">Admin</h3>
           </div>
-          <p className="text-sm text-red-700">Akses penuh ke seluruh fitur aplikasi termasuk manajemen hak akses</p>
+          <p className="text-[9px] sm:text-sm text-red-700 leading-tight line-clamp-2">Akses penuh ke seluruh fitur aplikasi termasuk manajemen hak akses</p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <UserCheck className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-blue-800">User</h3>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 sm:p-4">
+          <div className="flex items-center gap-0.5 sm:gap-2 mb-1 sm:mb-2">
+            <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+            <h3 className="font-semibold text-blue-800 text-xs sm:text-base">User</h3>
           </div>
-          <p className="text-sm text-blue-700">Dapat mengelola paket pekerjaan (tambah, edit, hapus)</p>
+          <p className="text-[9px] sm:text-sm text-blue-700 leading-tight line-clamp-2">Dapat mengelola paket pekerjaan (tambah, edit, hapus)</p>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Eye className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-800">Visitor</h3>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 sm:p-4">
+          <div className="flex items-center gap-0.5 sm:gap-2 mb-1 sm:mb-2">
+            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+            <h3 className="font-semibold text-gray-800 text-xs sm:text-base">Visitor</h3>
           </div>
-          <p className="text-sm text-gray-700">Hanya dapat melihat data (read-only)</p>
+          <p className="text-[9px] sm:text-sm text-gray-700 leading-tight line-clamp-2">Hanya dapat melihat data (read-only)</p>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden max-h-[calc(100vh-18rem)] sm:max-h-[calc(100vh-14rem)] overflow-y-auto">
-        <div className="overflow-x-auto pb-32 sm:pb-8">
-          <table className="w-full">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed min-w-[640px]">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Pengguna
+                <th className="px-1 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-slate-700 uppercase tracking-wider w-[25%]">Pengguna
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Email
+                <th className="px-1 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-slate-700 uppercase tracking-wider w-[30%]">Email
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Role Saat Ini
+                <th className="px-1 sm:px-4 py-2 sm:py-3 text-center text-[10px] sm:text-xs font-medium text-slate-700 uppercase tracking-wider w-[20%]">Role
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Aksi
+                <th className="px-1 sm:px-4 py-2 sm:py-3 text-center text-[10px] sm:text-xs font-medium text-slate-700 uppercase tracking-wider w-[25%] sm:w-auto">Aksi
                 </th>
               </tr>
             </thead>
@@ -215,45 +212,48 @@ export default function AccessManagementView({
 
                 return (
                   <tr key={user.uid} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        {getRoleIcon(user.role)}
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-slate-900">{user.displayName || 'User'}</p>
+                    <td className="px-0.5 sm:px-4 py-2 sm:py-3">
+                      <div className="flex items-center gap-1 sm:gap-0.5 sm:gap-2 min-w-0">
+                        <div className="flex-shrink-0 hidden sm:block">{getRoleIcon(user.role)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1">
+                            <p className="font-medium text-slate-900 text-[10px] sm:text-sm truncate max-w-[70px] sm:max-w-none">{user.displayName || 'User'}</p>
                             {isSuperAdminUser && (
-                              <Crown className="w-4 h-4 text-yellow-500" title="Super Admin" />
+                              <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 flex-shrink-0" aria-label="Super Admin" />
                             )}
                           </div>
-                          <p className="text-xs text-slate-500">
-                            {user.createdAt ? `Bergabung ${new Date(user.createdAt).toLocaleDateString('id-ID')}` : ''}
+                          <p className="text-[9px] sm:text-xs text-slate-500 truncate max-w-[90px] sm:max-w-none">
+                            {user.createdAt ? `${new Date(user.createdAt).toLocaleDateString('id-ID')}` : ''}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-sm text-slate-700">{user.email}</p>
+                    <td className="px-0.5 sm:px-4 py-2 sm:py-3">
+                      <p className="text-[10px] sm:text-sm text-slate-700 truncate max-w-[110px] sm:max-w-none">{user.email}</p>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      {getRoleBadge(user.role)}
+                    <td className="px-0.5 sm:px-4 py-2 sm:py-3 text-center">
+                      <div className="flex justify-center">
+                        {getRoleBadge(user.role)}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-0.5 sm:px-4 py-2 sm:py-3 text-center">
+                      <div className="flex items-center justify-center gap-0.5 sm:gap-0.5 sm:gap-2">
                         <button
                           onClick={() => handleOpenEditModal(user)}
                           disabled={loading || isSuperAdminUser}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
                           title={isSuperAdminUser ? "Super Admin tidak dapat diedit" : "Edit Role"}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(user)}
                           disabled={loading || isSuperAdminUser}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
                           title={isSuperAdminUser ? "Super Admin tidak dapat dihapus" : "Hapus User"}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       </div>
                     </td>
@@ -273,17 +273,17 @@ export default function AccessManagementView({
       </div>
 
       {/* Warning Note */}
-      <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex gap-3">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-yellow-800">
+      <div className="mt-4 sm:mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-4 overflow-hidden">
+        <div className="flex gap-2">
+          <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm text-yellow-800 min-w-0 flex-1">
             <p className="font-semibold mb-1">Perhatian:</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Super Admin ({SUPER_ADMIN_EMAIL}) tidak dapat diubah atau dihapus</li>
-              <li>User ditambahkan secara manual melalui tombol "Tambah User"</li>
-              <li>Saat login pertama, user akan terhubung dengan akun Firebase Auth mereka</li>
-              <li>Perubahan role akan langsung berlaku saat pengguna login berikutnya</li>
-              <li>Hapus user hanya menghapus data hak akses, tidak menghapus akun Firebase Auth</li>
+            <ul className="list-disc list-outside space-y-1 pl-4">
+              <li className="break-words">Super Admin ({SUPER_ADMIN_EMAIL}) tidak dapat diubah atau dihapus</li>
+              <li className="break-words">User ditambahkan secara manual melalui tombol "Tambah User"</li>
+              <li className="break-words">Saat login pertama, user akan terhubung dengan akun Firebase Auth mereka</li>
+              <li className="break-words">Perubahan role akan langsung berlaku saat pengguna login berikutnya</li>
+              <li className="break-words">Hapus user hanya menghapus data hak akses, tidak menghapus akun Firebase Auth</li>
             </ul>
           </div>
         </div>
@@ -333,7 +333,7 @@ export default function AccessManagementView({
                       className="w-4 h-4 text-red-600"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5 sm:gap-2">
                       <Shield className="w-5 h-5 text-red-500" />
                       <div>
                         <div className="font-medium text-slate-800">Admin</div>
@@ -352,7 +352,7 @@ export default function AccessManagementView({
                       className="w-4 h-4 text-blue-600"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5 sm:gap-2">
                       <UserCheck className="w-5 h-5 text-blue-500" />
                       <div>
                         <div className="font-medium text-slate-800">User</div>
@@ -371,7 +371,7 @@ export default function AccessManagementView({
                       className="w-4 h-4 text-gray-600"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5 sm:gap-2">
                       <Eye className="w-5 h-5 text-gray-500" />
                       <div>
                         <div className="font-medium text-slate-800">Visitor</div>
@@ -446,59 +446,59 @@ export default function AccessManagementView({
                   Role / Hak Akses
                 </label>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-3 p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                  <label className="flex items-center gap-0.5 sm:gap-2 sm:gap-3 p-2 sm:p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
                     <input
                       type="radio"
                       name="newUserRole"
                       value="admin"
                       checked={newUserRole === 'admin'}
                       onChange={(e) => setNewUserRole(e.target.value as AppUser['role'])}
-                      className="w-4 h-4 text-red-600"
+                      className="w-4 h-4 text-red-600 flex-shrink-0"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-red-500" />
-                      <div>
-                        <div className="font-medium text-slate-800">Admin</div>
-                        <div className="text-xs text-slate-500">Akses penuh ke semua fitur</div>
+                    <div className="flex items-center gap-0.5 sm:gap-2 min-w-0">
+                      <Shield className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-500 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="font-medium text-slate-800 text-sm sm:text-base">Admin</div>
+                        <div className="text-xs text-slate-500 truncate">Akses penuh ke semua fitur</div>
                       </div>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                  <label className="flex items-center gap-0.5 sm:gap-2 sm:gap-3 p-2 sm:p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
                     <input
                       type="radio"
                       name="newUserRole"
                       value="user"
                       checked={newUserRole === 'user'}
                       onChange={(e) => setNewUserRole(e.target.value as AppUser['role'])}
-                      className="w-4 h-4 text-blue-600"
+                      className="w-4 h-4 text-blue-600 flex-shrink-0"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
-                      <UserCheck className="w-5 h-5 text-blue-500" />
-                      <div>
-                        <div className="font-medium text-slate-800">User</div>
-                        <div className="text-xs text-slate-500">Dapat mengelola kontrak</div>
+                    <div className="flex items-center gap-0.5 sm:gap-2 min-w-0">
+                      <UserCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="font-medium text-slate-800 text-sm sm:text-base">User</div>
+                        <div className="text-xs text-slate-500 truncate">Dapat mengelola kontrak</div>
                       </div>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                  <label className="flex items-center gap-0.5 sm:gap-2 sm:gap-3 p-2 sm:p-3 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
                     <input
                       type="radio"
                       name="newUserRole"
                       value="visitor"
                       checked={newUserRole === 'visitor'}
                       onChange={(e) => setNewUserRole(e.target.value as AppUser['role'])}
-                      className="w-4 h-4 text-gray-600"
+                      className="w-4 h-4 text-gray-600 flex-shrink-0"
                       disabled={loading}
                     />
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <div className="font-medium text-slate-800">Visitor</div>
-                        <div className="text-xs text-slate-500">Hanya dapat melihat data</div>
+                    <div className="flex items-center gap-0.5 sm:gap-2 min-w-0">
+                      <Eye className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="font-medium text-slate-800 text-sm sm:text-base">Visitor</div>
+                        <div className="text-xs text-slate-500 truncate">Hanya dapat melihat data</div>
                       </div>
                     </div>
                   </label>
@@ -529,4 +529,12 @@ export default function AccessManagementView({
     </div>
   );
 }
+
+
+
+
+
+
+
+
 

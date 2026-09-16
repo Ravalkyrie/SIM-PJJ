@@ -72,6 +72,21 @@ export default function AccessManagementView({
     }
   };
 
+  const handleSaveRole = async () => {
+    if (!editingUser || !selectedRole) return;
+    
+    setLoading(true);
+    try {
+      await onUpdateUserRole(editingUser.uid, selectedRole);
+      handleCloseEditModal();
+      alert('✅ Role berhasil diubah');
+    } catch (error: any) {
+      alert(error.message || 'Gagal mengubah hak akses');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (user: AppUser) => {
     if (user.email === SUPER_ADMIN_EMAIL) {
       alert('Super Admin tidak dapat dihapus');
