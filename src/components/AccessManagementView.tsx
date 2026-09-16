@@ -190,8 +190,8 @@ export default function AccessManagementView({
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden max-h-[calc(100vh-20rem)] sm:max-h-[calc(100vh-16rem)] overflow-y-auto">
+        <div className="overflow-x-auto pb-24 sm:pb-6">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
