@@ -293,7 +293,7 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                   return (
                     <tr 
                       key={contract.id}
-                      className="hover:bg-slate-50/70 transition duration-150 group cursor-pointer"
+                      className="hover:bg-blue-50 hover:shadow-sm transition-all duration-200 group cursor-pointer border-b border-slate-100 hover:border-blue-200"
                       onClick={() => onSelectContract(contract.id)}
                     >
                       <td className="py-3.5 px-4 space-y-1 align-top">
@@ -460,7 +460,7 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                 <div 
                   key={contract.id}
                   onClick={() => onSelectContract(contract.id)}
-                  className="p-4 space-y-2 hover:bg-slate-50/70 transition cursor-pointer"
+                  className="p-4 space-y-2 hover:bg-blue-50 hover:shadow-sm transition-all duration-200 cursor-pointer border-l-2 border-transparent hover:border-blue-300"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="space-y-0.5 flex-1 min-w-0">

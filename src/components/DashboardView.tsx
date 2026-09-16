@@ -252,7 +252,7 @@ export default function DashboardView({ contracts, onSelectContract, onNavigateT
               return (
                 <div 
                   key={contract.id} 
-                  className="py-3 first:pt-0 last:pb-0 hover:bg-slate-50/80 rounded px-2 -mx-2 transition cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3"
+                  className="py-3 first:pt-0 last:pb-0 hover:bg-blue-50 hover:border-blue-200 hover:shadow-md rounded px-2 -mx-2 transition-all duration-200 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 border border-transparent"
                   onClick={() => onSelectContract(contract.id)}
                 >
                   <div className="space-y-1 md:max-w-[70%]">
