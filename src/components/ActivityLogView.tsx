@@ -257,7 +257,7 @@ export default function ActivityLogView({ logs, contracts, onClearLogs, onSelect
       </div>
 
       {/* Logs Timeline List */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden max-h-[calc(100vh-20rem)] sm:max-h-[calc(100vh-16rem)] overflow-y-auto">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden max-h-[calc(100vh-18rem)] sm:max-h-[calc(100vh-14rem)] overflow-y-auto">
         {filteredLogs.length === 0 ? (
           <div className="py-12 text-center">
             <History className="w-10 h-10 text-slate-300 mx-auto stroke-1" />
@@ -267,7 +267,7 @@ export default function ActivityLogView({ logs, contracts, onClearLogs, onSelect
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 pb-24 sm:pb-6">
+          <div className="divide-y divide-slate-100 pb-32 sm:pb-8">
             {filteredLogs.map((log) => {
               const config = getActionConfig(log.actionType);
               const exists = contracts.some(c => c.id === log.contractId);
