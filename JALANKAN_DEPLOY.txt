@@ -1,0 +1,67 @@
+====================================================================
+  LANGKAH DEPLOY ULANG - FIX ERROR 404
+====================================================================
+
+JALANKAN SCRIPT INI:
+--------------------
+1. Double-click file: DEPLOY_FIX_404.bat
+2. Tunggu proses selesai (3-5 menit)
+3. Setelah selesai, tunggu 2-3 menit untuk GitHub Pages propagation
+4. Test aplikasi
+
+
+ATAU MANUAL:
+------------
+1. Bersihkan dist:
+   rmdir /s /q dist
+
+2. Build ulang:
+   npm run build
+
+3. Copy 404.html:
+   copy public\404.html dist\404.html
+
+4. Deploy:
+   npm run deploy
+
+
+SETELAH DEPLOY:
+---------------
+1. Tunggu 2-3 menit
+2. Clear browser cache (Ctrl+Shift+Delete)
+3. Akses: https://ravalkyrie.github.io/SIM-PJJ/
+4. URL akan otomatis menjadi: https://ravalkyrie.github.io/SIM-PJJ/#/
+
+
+URL YANG BENAR SEKARANG:
+-------------------------
+✓ https://ravalkyrie.github.io/SIM-PJJ/
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/dashboard
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/kontrak
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/log-aktivitas
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/hak-akses
+
+
+APA YANG SUDAH DIPERBAIKI:
+---------------------------
+1. ✓ HashRouter sudah digunakan di App.tsx
+2. ✓ File 404.html sudah ada di public/
+3. ✓ Script redirect sudah ditambahkan di index.html
+4. ✓ Vite config sudah benar dengan base: '/SIM-PJJ/'
+
+
+YANG PERLU DILAKUKAN:
+----------------------
+→ JALANKAN: DEPLOY_FIX_404.bat
+
+
+CATATAN PENTING:
+----------------
+- Setelah deploy, SELALU akses dengan tanda # di URL
+- Contoh: https://ravalkyrie.github.io/SIM-PJJ/#/dashboard
+- Jangan akses: https://ravalkyrie.github.io/SIM-PJJ/dashboard (tanpa #)
+- Jika lupa pakai #, sistem akan otomatis redirect
+
+
+====================================================================

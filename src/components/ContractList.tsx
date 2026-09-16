@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { KontrakFisik, KABUPATEN_PRESETS, UserRole } from '../types';
+import { KontrakFisik, KABUPATEN_PRESETS, UserRole, DokumenLampiran } from '../types';
 import { formatBriefRupiah } from './DashboardView';
 import { 
   Search, 
@@ -18,7 +18,9 @@ import {
   Coins,
   Trash2,
   FileText,
-  Download
+  Download,
+  FolderOpen,
+  X
 } from 'lucide-react';
 
 interface ContractListProps {
@@ -28,6 +30,21 @@ interface ContractListProps {
   onDeleteContract: (id: string) => void;
   onDeleteAllContracts?: () => void;
   userRole?: UserRole;
+}
+
+// Helper function to group lampiran by category
+function groupLampiranByCategory(lampiran: DokumenLampiran[]): Map<string, DokumenLampiran[]> {
+  const grouped = new Map<string, DokumenLampiran[]>();
+  
+  lampiran.forEach(lamp => {
+    const category = lamp.tipeDokumen || 'Lainnya';
+    if (!grouped.has(category)) {
+      grouped.set(category, []);
+    }
+    grouped.get(category)!.push(lamp);
+  });
+  
+  return grouped;
 }
 
 export default function ContractList({ contracts, onSelectContract, onNavigateToInput, onDeleteContract, onDeleteAllContracts, userRole = 'user' }: ContractListProps) {
@@ -42,6 +59,9 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
   const [contractToDelete, setContractToDelete] = useState<{ id: string; namaPaket: string } | null>(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  
+  // Modal for viewing files in a category
+  const [categoryModal, setCategoryModal] = useState<{ category: string; files: DokumenLampiran[]; contractName: string } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -313,47 +333,56 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                           )}
                         </p>
                         {contract.lampiran && contract.lampiran.length > 0 && (
-                          <div className="flex items-center gap-1.5 mt-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-0.5 mr-0.5">
-                              <FileText className="w-3 h-3 text-slate-400" />
-                              Lampiran ({contract.lampiran.length}):
-                            </span>
-                            {contract.lampiran.map((lamp) => {
-                              const typeColors: Record<string, string> = {
-                                'SPK': 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
-                                'SPMK': 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
-                                'Adendum': 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100',
-                                'BAST-1': 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
-                                'FHO': 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100',
-                                'Lainnya': 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                              };
-                              const color = typeColors[lamp.tipeDokumen] || 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100';
-                              return (
-                                <span key={lamp.id} className="inline-flex items-center">
-                                  {lamp.googleDriveUrl ? (
-                                    <a
-                                      href={lamp.googleDriveUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      title={`Buka & Unduh Berkas: ${lamp.namaFile}`}
-                                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 transition ${color}`}
-                                    >
-                                      <span>{lamp.tipeDokumen}</span>
-                                      <Download className="w-2.5 h-2.5 shrink-0" />
-                                    </a>
-                                  ) : (
-                                    <button
-                                      onClick={() => showToast(`Mengunduh berkas "${lamp.namaFile}" (Simulasi)...`, 'info')}
-                                      title={`Unduh Berkas: ${lamp.namaFile}`}
-                                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 transition ${color}`}
-                                    >
-                                      <span>{lamp.tipeDokumen}</span>
-                                      <Download className="w-2.5 h-2.5 shrink-0" />
-                                    </button>
-                                  )}
-                                </span>
-                              );
-                            })}
+                          <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide font-bold text-slate-500">
+                              <FileText className="w-3 h-3" />
+                              <span>BERKAS DIGITAL</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {(() => {
+                                const grouped = groupLampiranByCategory(contract.lampiran);
+                                const categories = Array.from(grouped.entries());
+                                const maxVisible = 5;
+                                const visibleCategories = categories.slice(0, maxVisible);
+                                const remainingCount = categories.length - maxVisible;
+
+                                return (
+                                  <>
+                                    {visibleCategories.map(([category, files]) => (
+                                      <button
+                                        key={category}
+                                        onClick={() => setCategoryModal({ 
+                                          category, 
+                                          files, 
+                                          contractName: contract.namaPaket 
+                                        })}
+                                        className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-[10px] font-semibold transition cursor-pointer"
+                                        title={`Klik untuk melihat ${files.length} file dalam kategori "${category}"`}
+                                      >
+                                        <FolderOpen className="w-3 h-3" />
+                                        <span className="max-w-[140px] truncate">{category}</span>
+                                        <span className="px-1 py-0.5 bg-indigo-600 text-white rounded text-[9px] font-bold">
+                                          {files.length}
+                                        </span>
+                                      </button>
+                                    ))}
+                                    {remainingCount > 0 && (
+                                      <button
+                                        onClick={() => setCategoryModal({ 
+                                          category: 'Semua Kategori', 
+                                          files: contract.lampiran, 
+                                          contractName: contract.namaPaket 
+                                        })}
+                                        className="flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300 rounded text-[10px] font-semibold transition cursor-pointer"
+                                        title="Lihat semua kategori"
+                                      >
+                                        <span>+{remainingCount} kategori</span>
+                                      </button>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
                           </div>
                         )}
                       </td>
@@ -566,6 +595,75 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                 </div>
               );
             })}
+
+      {/* Category Files Modal */}
+      {categoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-scale-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-200">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">{categoryModal.category}</h3>
+                <p className="text-xs text-slate-600 mt-0.5">{categoryModal.contractName}</p>
+              </div>
+              <button
+                onClick={() => setCategoryModal(null)}
+                className="p-1.5 hover:bg-slate-100 rounded transition"
+              >
+                <X className="w-4 h-4 text-slate-600" />
+              </button>
+            </div>
+
+            {/* Modal Body - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-2">
+                {categoryModal.files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between gap-3 p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded transition"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-slate-900 truncate">{file.namaFile}</div>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
+                        <span>{file.tipeDokumen}</span>
+                        <span>•</span>
+                        <span>{file.ukuranFile}</span>
+                        <span>•</span>
+                        <span>{file.tanggalUpload}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (file.googleDriveUrl) {
+                          window.open(file.googleDriveUrl, '_blank');
+                        } else {
+                          alert(`File "${file.namaFile}" tidak memiliki URL yang valid.`);
+                        }
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded transition whitespace-nowrap"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Buka</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setCategoryModal(null)}
+                className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded transition"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
           </div>
         </div>
       )}

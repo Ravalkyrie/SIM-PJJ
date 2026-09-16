@@ -1,0 +1,54 @@
+═══════════════════════════════════════════════════════════════════════════════
+  CARA UPDATE TAMPILAN LAMPIRAN - 3 LANGKAH MUDAH
+═══════════════════════════════════════════════════════════════════════════════
+
+LANGKAH 1: Buka File
+─────────────────────────────────────────────────────────────────────────────
+Buka di VS Code:
+C:\New folder\Manajemen\src\components\ContractList.tsx
+
+
+LANGKAH 2: Cari & Ganti
+─────────────────────────────────────────────────────────────────────────────
+1. Tekan Ctrl + F
+2. Ketik: LAMPIRAN ({item.lampiran.length})
+3. Akan ketemu di sekitar line 329
+4. Pilih (select) SELURUH SECTION dari baris 324 sampai 349
+   Mulai dari: {/* Berkas Digital / Lampiran */}
+   Sampai: )}
+5. Hapus (Delete)
+6. Copy kode dari file: NEW_CODE_PASTE_THIS.txt
+7. Paste di tempat yang sama
+8. Save (Ctrl + S)
+
+
+LANGKAH 3: Test
+─────────────────────────────────────────────────────────────────────────────
+Buka Terminal di VS Code:
+
+npm run lint
+npm run build
+npm run dev
+
+Buka browser: http://localhost:3000
+
+
+SELESAI!
+═══════════════════════════════════════════════════════════════════════════════
+
+HASIL:
+- File tidak ditampilkan satu per satu
+- Ditampilkan per kategori dengan jumlah file
+- Contoh: [Sertifikat Bulanan (5)] [Dokumen Kontrak (1)]
+- Klik kategori untuk lihat daftar file dalam modal
+- Tampilan lebih compact dan professional
+
+FILE YANG SUDAH DIBUAT:
+✓ CategoryFilesModal.tsx - Modal component
+✓ GroupedLampiranDisplay.tsx - Display component  
+✓ NEW_CODE_PASTE_THIS.txt - Kode baru untuk di-paste
+✓ MANUAL_UPDATE_GUIDE.js - Panduan lengkap
+✓ SUMMARY_FINAL.txt - Ringkasan lengkap
+
+BACKUP:
+Jika ada masalah, restore dari: ContractList.tsx.backup

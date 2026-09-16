@@ -1,0 +1,43 @@
+/**
+ * INSTRUCTIONS TO COMPLETE THE UPDATE
+ * 
+ * The CategoryFilesModal has been added at line 589.
+ * Now you need to manually update the lampiran display section.
+ * 
+ * Open ContractList.tsx in your editor and search for:
+ * "LAMPIRAN ({item.lampiran.length})"
+ * 
+ * Replace the entire lampiran section (approximately lines 324-349) with the new grouped version.
+ * 
+ * The new code is in MANUAL_UPDATE_GUIDE.js
+ * 
+ * Key changes:
+ * 1. Change "LAMPIRAN ({item.lampiran.length})" to "BERKAS DIGITAL"
+ * 2. Add "border-t border-slate-100" to the container div
+ * 3. Replace item.lampiran.map() with grouped category display
+ * 4. Each category shows as a badge with file count
+ * 5. Clicking category opens modal (already added at line 589)
+ * 
+ * After making the changes, run:
+ * npm run lint
+ * npm run build
+ * 
+ * Test the application to ensure:
+ * - Categories are displayed correctly
+ * - Clicking category opens modal
+ * - Modal shows all files in that category
+ * - All existing features still work
+ */
+
+// Summary of what has been done:
+// ✅ Created CategoryFilesModal.tsx component
+// ✅ Created GroupedLampiranDisplay.tsx component  
+// ✅ Added imports to ContractList.tsx (FolderOpen, X, DokumenLampiran)
+// ✅ Added groupLampiranByCategory helper function
+// ✅ Added categoryModal state
+// ✅ Added CategoryFilesModal at line 589
+
+// What needs to be done manually:
+// ❌ Replace lampiran display section (lines ~324-349)
+//    Search for: "LAMPIRAN ({item.lampiran.length})"
+//    See MANUAL_UPDATE_GUIDE.js for the exact replacement code

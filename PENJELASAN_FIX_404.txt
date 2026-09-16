@@ -1,0 +1,149 @@
+====================================================================
+  PENJELASAN MASALAH 404 DAN SOLUSINYA
+====================================================================
+
+MASALAH YANG TERJADI:
+--------------------
+1. URL di browser: https://ravalkyrie.github.io/dashboard (tanpa #)
+2. GitHub Pages mencari file: /dashboard/index.html
+3. File tidak ditemukan → Error 404
+4. Padahal kode sudah menggunakan HashRouter
+
+
+AKAR MASALAHNYA:
+----------------
+GitHub Pages adalah STATIC HOSTING, bukan server dengan routing dinamis.
+
+Ketika user mengakses:
+- https://ravalkyrie.github.io/SIM-PJJ/dashboard
+
+GitHub Pages akan mencari file fisik:
+- /SIM-PJJ/dashboard/index.html ← File ini TIDAK ADA!
+
+React HashRouter menggunakan URL dengan tanda #:
+- https://ravalkyrie.github.io/SIM-PJJ/#/dashboard
+
+Tanda # membuat browser TIDAK mengirim request ke server untuk path
+setelah #, melainkan di-handle oleh JavaScript React Router.
+
+
+SOLUSI YANG DITERAPKAN:
+------------------------
+
+1. FILE: public/404.html
+   - Otomatis ditampilkan GitHub Pages ketika file tidak ditemukan
+   - Berisi script yang redirect URL dari "/dashboard" ke "/?/dashboard"
+   - Script ini berjalan sebelum React dimuat
+
+2. FILE: index.html
+   - Ditambah script yang membaca query string "/?/dashboard"
+   - Mengubahnya kembali menjadi "/#/dashboard"
+   - Setelah itu React HashRouter bisa handle routing
+
+3. FLOW LENGKAP:
+   User akses: ravalkyrie.github.io/dashboard
+   ↓
+   GitHub Pages: File tidak ditemukan → tampilkan 404.html
+   ↓
+   Script di 404.html: redirect ke /?/dashboard
+   ↓
+   index.html dimuat, script mengubah /?/dashboard → /#/dashboard
+   ↓
+   React HashRouter mengenali route /#/dashboard
+   ↓
+   Halaman dashboard ditampilkan ✓
+
+
+CARA KERJA DETAIL:
+------------------
+
+404.html mengubah:
+  /dashboard → /?/dashboard
+
+index.html mengubah:
+  /?/dashboard → /#/dashboard
+
+HashRouter menangani:
+  /#/dashboard → render komponen Dashboard
+
+
+URL YANG BENAR:
+----------------
+✓ https://ravalkyrie.github.io/SIM-PJJ/
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/dashboard
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/kontrak
+✓ https://ravalkyrie.github.io/SIM-PJJ/#/log-aktivitas
+
+
+MENGAPA HASHROUTER DIPERLUKAN:
+-------------------------------
+BrowserRouter memerlukan server yang bisa:
+- Menerima request ke semua path (/dashboard, /kontrak, dll)
+- Selalu mengembalikan index.html untuk semua path
+- Membiarkan React Router handle routing di client side
+
+GitHub Pages TIDAK bisa melakukan ini!
+GitHub Pages hanya bisa:
+- Serve file statis
+- Return 404.html jika file tidak ditemukan
+
+Maka solusinya:
+- HashRouter: routing di-handle browser, tidak kirim request ke server
+- 404.html: backup jika ada yang akses URL tanpa #
+
+
+TESTING:
+--------
+Setelah deploy, test URL berikut:
+
+1. https://ravalkyrie.github.io/SIM-PJJ/
+   → Harus redirect ke /#/ dan tampil halaman login
+
+2. https://ravalkyrie.github.io/SIM-PJJ/dashboard
+   → Akan trigger 404.html → redirect ke /#/dashboard
+
+3. Refresh di halaman dashboard
+   → URL tetap /#/dashboard, tidak error
+
+4. Navigasi manual di address bar
+   → Semua route harus bekerja jika ada tanda #
+
+
+TROUBLESHOOTING:
+----------------
+Jika masih error 404:
+
+1. Clear browser cache:
+   - Chrome: Ctrl+Shift+Delete → Clear browsing data
+   - Pilih "Cached images and files"
+   - Clear data
+
+2. Gunakan Incognito/Private mode
+   - Ctrl+Shift+N (Chrome)
+   - Ctrl+Shift+P (Firefox)
+
+3. Hard refresh:
+   - Ctrl+F5 atau Ctrl+Shift+R
+
+4. Tunggu 2-5 menit untuk GitHub Pages propagation
+
+5. Cek apakah file 404.html ada di GitHub:
+   - Buka: https://github.com/Ravalkyrie/SIM-PJJ/tree/gh-pages
+   - Harus ada file: 404.html dan index.html
+
+6. Akses langsung dengan #:
+   - https://ravalkyrie.github.io/SIM-PJJ/#/
+
+
+REFERENSI:
+----------
+- GitHub Pages SPA solution: https://github.com/rafgraph/spa-github-pages
+- React Router Hash Router: https://reactrouter.com/en/main/router-components/hash-router
+- GitHub Pages docs: https://docs.github.com/en/pages
+
+
+====================================================================
+Dibuat: 16 September 2026
+Untuk: SIM-PJJ Project
+====================================================================

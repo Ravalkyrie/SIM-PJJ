@@ -1,0 +1,29 @@
+FINAL INSTRUCTIONS - Manual Update ContractList.tsx
+
+File: C:\New folder\Manajemen\src\components\ContractList.tsx
+
+CARI (Ctrl+F): LAMPIRAN ({item.lampiran.length})
+
+GANTI SECTION (line ~324-349) dengan kode di MANUAL_UPDATE_GUIDE.js
+
+PERUBAHAN:
+✅ Import sudah ada (FolderOpen, X, DokumenLampiran)
+✅ Helper function groupLampiranByCategory sudah ada
+✅ State categoryModal sudah ada
+✅ Modal component sudah ditambahkan (line 589)
+❌ Display lampiran PERLU UPDATE MANUAL
+
+SETELAH UPDATE:
+1. npm run lint
+2. npm run build
+3. npm run dev
+4. Test di browser
+
+HASIL:
+- Kategori dengan jumlah file (bukan file individual)
+- Contoh: "Sertifikat Bulanan (5)"
+- Klik kategori → buka modal
+- Modal tampilkan semua file
+- UI compact dan clean
+
+Backup: ContractList.tsx.backup

@@ -1,0 +1,30 @@
+/**
+ * Instructions for updating ContractList.tsx
+ * 
+ * STEP 1: Add new imports at the top:
+ * - Import CategoryFilesModal from './CategoryFilesModal'
+ * - Import GroupedLampiranDisplay from './GroupedLampiranDisplay'
+ * 
+ * STEP 2: Remove the old lampiran display section (around line 311-336)
+ * Look for: {/* Berkas Digital / Lampiran *\/}
+ * And replace entire section with:
+ * <GroupedLampiranDisplay 
+ *   lampiran={item.lampiran}
+ *   onCategoryClick={(category, files, contractName) => 
+ *     setCategoryModal({ category, files, contractName })
+ *   }
+ *   contractName={item.namaPaket}
+ * />
+ * 
+ * STEP 3: Add CategoryFilesModal before closing </div> at the end
+ * {categoryModal && (
+ *   <CategoryFilesModal
+ *     category={categoryModal.category}
+ *     files={categoryModal.files}
+ *     contractName={categoryModal.contractName}
+ *     onClose={() => setCategoryModal(null)}
+ *   />
+ * )}
+ * 
+ * STEP 4: The categoryModal state is already defined at line 64
+ */
