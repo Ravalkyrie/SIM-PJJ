@@ -1156,6 +1156,7 @@ function AppContent() {
                       <ActivityLogsPage 
                         logs={activityLogs}
                         contracts={contracts}
+                        userRole={currentUserRole}
                         onClearLogs={async () => {
                           // Check permission
                           if (!hasPermission(currentUserRole, 'delete')) {

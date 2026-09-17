@@ -12,9 +12,10 @@ interface ActivityLogsPageProps {
   logs: ActivityLog[];
   contracts: KontrakFisik[];
   onClearLogs: () => void;
+  userRole?: 'admin' | 'user' | 'visitor';
 }
 
-export default function ActivityLogsPage({ logs, contracts, onClearLogs }: ActivityLogsPageProps) {
+export default function ActivityLogsPage({ logs, contracts, onClearLogs, userRole }: ActivityLogsPageProps) {
   const navigate = useNavigate();
 
   const handleSelectContract = (id: string) => {
@@ -27,6 +28,7 @@ export default function ActivityLogsPage({ logs, contracts, onClearLogs }: Activ
       contracts={contracts}
       onClearLogs={onClearLogs}
       onSelectContract={handleSelectContract}
+      userRole={userRole}
     />
   );
 }

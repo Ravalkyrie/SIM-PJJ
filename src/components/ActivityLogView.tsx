@@ -27,9 +27,10 @@ interface ActivityLogViewProps {
   contracts: KontrakFisik[];
   onClearLogs: () => void;
   onSelectContract: (id: string) => void;
+  userRole?: 'admin' | 'user' | 'visitor';
 }
 
-export default function ActivityLogView({ logs, contracts, onClearLogs, onSelectContract }: ActivityLogViewProps) {
+export default function ActivityLogView({ logs, contracts, onClearLogs, onSelectContract, userRole = 'user' }: ActivityLogViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('Semua');
   const [filterContract, setFilterContract] = useState<string>('Semua');
@@ -148,7 +149,7 @@ export default function ActivityLogView({ logs, contracts, onClearLogs, onSelect
             </p>
           </div>
         </div>
-        {logs.length > 0 && (
+        {logs.length > 0 && userRole === 'admin' && (
           <button
             onClick={handleClearConfirm}
             className="flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-red-200 transition shrink-0 self-start sm:self-center cursor-pointer"
