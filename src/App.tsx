@@ -934,6 +934,22 @@ function AppContent() {
               />
               
               <Route 
+                path="/kontrak/:id/edit" 
+                element={
+                  currentUserRole !== 'visitor' ? (
+                    <PageTransition>
+                      <ContractFormPage 
+                        contracts={contracts}
+                        onSave={handleSaveContract}
+                      />
+                    </PageTransition>
+                  ) : (
+                    <Navigate to="/kontrak" replace />
+                  )
+                } 
+              />
+              
+              <Route 
                 path="/log-aktivitas" 
                 element={
                   currentUserRole !== 'visitor' ? (
