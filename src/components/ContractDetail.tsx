@@ -308,8 +308,8 @@ export default function ContractDetail({
           Kembali ke Daftar Kontrak
         </button>
 
-        {userRole !== 'visitor' && (
-          <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto">
+          {userRole !== 'visitor' && (
             <button
               onClick={() => onEdit(contract.id)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
@@ -317,14 +317,16 @@ export default function ContractDetail({
               <Edit className="w-3.5 h-3.5 text-amber-400" />
               Edit Kontrak
             </button>
-            <button
-              onClick={() => setPrintPreviewContract(contract)}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Cetak</span>
-              <span className="sm:hidden">Cetak</span>
-            </button>
+          )}
+          <button
+            onClick={() => setPrintPreviewContract(contract)}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Cetak</span>
+            <span className="sm:hidden">Cetak</span>
+          </button>
+          {userRole !== 'visitor' && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded text-xs font-bold transition cursor-pointer"
@@ -332,8 +334,8 @@ export default function ContractDetail({
               <Trash2 className="w-3.5 h-3.5 text-rose-500" />
               Hapus Kontrak
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Delete Confirmation Modal Overlay */}
