@@ -258,7 +258,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
                 {contract.waktuPemeliharaan && (
                   <div style={{ display: 'flex' }}>
                     <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px' }}>Wkt. Pemeliharaan</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {contract.waktuPemeliharaan}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>:  {contract.waktuPemeliharaan}</span>
                   </div>
                 )}
               </div>

@@ -1,0 +1,107 @@
+/**
+ * TYPOGRAPHY NORMALIZATION - CONTRACT DETAIL PAGE (DESKTOP ONLY)
+ * ================================================================
+ * Scope: Desktop/PC typography improvements for "Daftar Kontrak" detail page
+ * Mobile: NO CHANGES - Mobile styles remain untouched
+ * Target: Improve readability, consistency, and hierarchy on desktop screens
+ * 
+ * @media (min-width: 1024px) - Desktop only
+ */
+
+/* ============================================
+   DESKTOP TYPOGRAPHY HIERARCHY (≥1024px)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  
+  /* 1. NAMA PAKET PEKERJAAN - Primary/Most Prominent Text */
+  #document-sheet .contract-detail-nama-paket {
+    font-size: 22px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+  }
+  
+  /* 2. SECTION HEADINGS - Main section titles */
+  #document-sheet .contract-detail-section-heading,
+  #berkas-digital .contract-detail-section-heading,
+  .contract-detail-section-heading {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+  }
+  
+  /* 3. SUBSECTION / CARD TITLES - Divisi, Adendum cards, etc */
+  .contract-detail-subsection-title {
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* 4. LABELS - Field labels like "Kab/Kota", "Ruas Jalan", etc */
+  .contract-detail-label {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* 5. VALUES / CONTENT - General information display */
+  .contract-detail-value {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* 6. IMPORTANT VALUES - Financial data, totals, emphasized info */
+  .contract-detail-value-important {
+    font-size: 17px !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* 7. SMALL TEXT - Metadata, timestamps, helper text */
+  .contract-detail-small {
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* 8. ADENDUM KETERANGAN - Made more prominent */
+  .contract-detail-adendum-keterangan {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+  }
+
+  /* 9. URAIAN PEKERJAAN SECTION */
+  .contract-detail-uraian-section-title {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+  }
+
+  .contract-detail-uraian-divisi-title {
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+  }
+
+  .contract-detail-uraian-summary {
+    font-size: 17px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+  }
+
+  .contract-detail-uraian-item-name {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+
+  .contract-detail-uraian-meta {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* ============================================
+   MOBILE PRESERVATION (< 1024px)
+   ============================================
+   NO CHANGES TO MOBILE - All existing mobile
+   styles remain completely untouched
+   ============================================ */

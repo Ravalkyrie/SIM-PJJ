@@ -40,6 +40,7 @@ import {
   Printer
 } from 'lucide-react';
 import ContractPrintPreview from './ContractPrintPreview';
+import './ContractDetailTypography.css';
 
 interface ContractDetailProps {
   contract: KontrakFisik;
@@ -494,66 +495,66 @@ export default function ContractDetail({
 
               {/* Paket Pekerjaan */}
               <div className="space-y-1">
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Paket Pekerjaan</h3>
-                <p className="text-base md:text-lg font-extrabold text-slate-900 leading-snug md:leading-normal">{contract.namaPaket}</p>
+                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider contract-detail-label">Nama Paket Pekerjaan</h3>
+                <p className="text-base md:text-lg font-extrabold text-slate-900 leading-snug md:leading-normal contract-detail-nama-paket">{contract.namaPaket}</p>
               </div>
 
               {/* Section 1: Lokasi & Nilai */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3.5 border-t border-slate-100">
                 {/* Lokasi */}
                 <div className="space-y-2">
-                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 contract-detail-section-heading">
                     <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     Lokasi & Wilayah
                   </h4>
                   <div className="space-y-2 bg-slate-50 p-3 rounded border border-slate-200">
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-[11px] text-slate-500 font-semibold">Kab/Kota</span>
-                      <span className="sm:col-span-2 text-sm font-bold text-slate-800"><span className="hidden sm:inline">: </span>{contract.kabupatenKota}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Kab/Kota</span>
+                      <span className="sm:col-span-2 text-sm font-bold text-slate-800 contract-detail-value"><span className="hidden sm:inline">: </span>{contract.kabupatenKota}</span>
                     </div>
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-[11px] text-slate-500 font-semibold">Ruas Jalan</span>
-                      <span className="sm:col-span-2 text-sm font-medium text-slate-700 leading-tight"><span className="hidden sm:inline">: </span>{contract.lokasiRuas}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Ruas Jalan</span>
+                      <span className="sm:col-span-2 text-sm font-medium text-slate-700 leading-tight contract-detail-value"><span className="hidden sm:inline">: </span>{contract.lokasiRuas}</span>
                     </div>
                     {contract.panjangEfektif && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-[11px] text-slate-500 font-semibold">Pj. Efektif</span>
-                        <span className="sm:col-span-2 text-sm font-bold text-indigo-600"><span className="hidden sm:inline">: </span>{contract.panjangEfektif}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Pj. Efektif</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-indigo-600 contract-detail-value"><span className="hidden sm:inline">: </span>{contract.panjangEfektif}</span>
                       </div>
                     )}
                     {contract.kegiatanPreservasi && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-[11px] text-slate-500 font-semibold">Preservasi</span>
-                        <span className="sm:col-span-2 text-sm font-bold text-amber-700"><span className="hidden sm:inline">: </span>{contract.kegiatanPreservasi}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Preservasi</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-amber-700 contract-detail-value"><span className="hidden sm:inline">: </span>{contract.kegiatanPreservasi}</span>
                       </div>
                     )}
                     {contract.waktuPemeliharaan && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-[11px] text-slate-500 font-semibold">Wkt. Pemeliharaan</span>
-                        <span className="sm:col-span-2 text-sm font-bold text-emerald-700"><span className="hidden sm:inline">: </span>{contract.waktuPemeliharaan}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Wkt. Pemeliharaan</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-emerald-700 contract-detail-value"><span className="hidden sm:inline">:  </span>{contract.waktuPemeliharaan}</span>
                       </div>
                     )}
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-[11px] text-slate-500 font-semibold">Tanggal Kontrak</span>
-                      <span className="sm:col-span-2 text-sm font-bold text-slate-700"><span className="hidden sm:inline">: </span>{contract.tanggalKontrak}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Tanggal Kontrak</span>
+                      <span className="sm:col-span-2 text-sm font-bold text-slate-700 contract-detail-value"><span className="hidden sm:inline">: </span>{contract.tanggalKontrak}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Nilai Kontrak */}
                 <div className="space-y-2">
-                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 contract-detail-section-heading">
                     <Coins className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     Rincian Keuangan
                   </h4>
                   <div className="space-y-2 bg-slate-50 p-3 rounded border border-slate-200">
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-[11px] text-slate-500 font-semibold">Anggaran DPA</span>
-                      <span className="sm:col-span-2 text-sm font-medium text-slate-700"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiHps)}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold contract-detail-label">Anggaran DPA</span>
+                      <span className="sm:col-span-2 text-sm font-medium text-slate-700 contract-detail-value"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiHps)}</span>
                     </div>
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-[11px] text-slate-500 font-bold">Nilai Kontrak</span>
-                      <span className="sm:col-span-2 text-sm font-extrabold text-slate-900"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiKontrak)}</span>
+                      <span className="text-[11px] text-slate-500 font-bold contract-detail-label">Nilai Kontrak</span>
+                      <span className="sm:col-span-2 text-sm font-extrabold text-slate-900 contract-detail-value-important"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiKontrak)}</span>
                     </div>
                   </div>
                 </div>
@@ -561,46 +562,46 @@ export default function ContractDetail({
 
               {/* Section 2: Administrasi Pelaksana */}
               <div className="space-y-2 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 contract-detail-section-heading">
                   <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
                   Administrasi Pekerjaan & Stakeholders
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Penyedia Jasa (Kontraktor)</p>
-                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.kontraktorPelaksana}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider contract-detail-label">Penyedia Jasa (Kontraktor)</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight contract-detail-value">{contract.kontraktorPelaksana}</p>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Konsultan Pengawas</p>
-                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.konsultanPengawas}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider contract-detail-label">Konsultan Pengawas</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight contract-detail-value">{contract.konsultanPengawas}</p>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Pejabat Pembuat Komitmen (PPK)</p>
-                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.pejabatPembuatKomitmen}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">NIP: {contract.nipPpk}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider contract-detail-label">Pejabat Pembuat Komitmen (PPK)</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight contract-detail-value">{contract.pejabatPembuatKomitmen}</p>
+                    <p className="text-[10px] text-slate-400 font-mono contract-detail-small">NIP: {contract.nipPpk}</p>
                   </div>
                 </div>
               </div>
 
               {/* Section 3: Jadwal Pelaksanaan */}
               <div className="space-y-2 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 contract-detail-section-heading">
                   <Clock className="w-3.5 h-3.5 text-amber-500" />
                   Masa Waktu Pelaksanaan
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 bg-slate-50 p-3 rounded border border-slate-200">
                   <div className="space-y-0.5">
-                    <p className="text-[11px] text-slate-500 font-semibold">Jangka Waktu</p>
-                    <p className="text-sm font-bold text-slate-800">{contract.jangkaWaktu} Hari Kalender</p>
+                    <p className="text-[11px] text-slate-500 font-semibold contract-detail-label">Jangka Waktu</p>
+                    <p className="text-sm font-bold text-slate-800 contract-detail-value">{contract.jangkaWaktu} Hari Kalender</p>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-[11px] text-slate-500 font-semibold">Tanggal Mulai (SPMK)</p>
-                    <p className="text-sm font-bold text-slate-800">{contract.tanggalMulai}</p>
+                    <p className="text-[11px] text-slate-500 font-semibold contract-detail-label">Tanggal Mulai (SPMK)</p>
+                    <p className="text-sm font-bold text-slate-800 contract-detail-value">{contract.tanggalMulai}</p>
                   </div>
                   {contract.nomorSpmk && (
                     <div className="space-y-0.5">
-                      <p className="text-[11px] text-slate-500 font-semibold">Nomor SPMK</p>
-                      <p className="text-sm font-bold text-slate-800 font-mono break-all leading-tight">
+                      <p className="text-[11px] text-slate-500 font-semibold contract-detail-label">Nomor SPMK</p>
+                      <p className="text-sm font-bold text-slate-800 font-mono break-all leading-tight contract-detail-value">
                         {contract.nomorSpmk}
                       </p>
                     </div>
@@ -610,8 +611,8 @@ export default function ContractDetail({
 
               {/* Catatan Pekerjaan */}
               <div className="space-y-1.5 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Catatan Evaluasi / Rekomendasi Lapangan</h4>
-                <div className="bg-amber-50/50 border border-amber-200 p-3 rounded text-xs text-slate-700 leading-relaxed font-sans">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider contract-detail-section-heading">Catatan Evaluasi / Rekomendasi Lapangan</h4>
+                <div className="bg-amber-50/50 border border-amber-200 p-3 rounded text-xs text-slate-700 leading-relaxed font-sans contract-detail-value">
                   {contract.catatanPekerjaan || "Tidak ada catatan evaluasi khusus untuk pekerjaan ini."}
                 </div>
               </div>
@@ -625,11 +626,11 @@ export default function ContractDetail({
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <div className="space-y-0.5">
-                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 contract-detail-section-heading">
                   <History className="w-4 h-4 text-violet-600 animate-spin-slow" />
                   Daftar Adendum Kontrak
                 </h3>
-                <p className="text-[11px] text-slate-500">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
+                <p className="text-[11px] text-slate-500 contract-detail-small">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
               </div>
               {userRole !== 'visitor' && (
                 <button
@@ -731,22 +732,22 @@ export default function ContractDetail({
 
             {/* Adendums list */}
             {contract.adendum.length === 0 ? (
-              <p className="text-[11px] text-slate-400 italic text-center py-2 bg-slate-50 rounded border border-slate-200 border-dashed">Belum ada adendum untuk kontrak induk ini.</p>
+              <p className="text-[11px] text-slate-400 italic text-center py-2 bg-slate-50 rounded border border-slate-200 border-dashed contract-detail-small">Belum ada adendum untuk kontrak induk ini.</p>
             ) : (
               <div className="divide-y divide-slate-100 text-xs">
                 {contract.adendum.map((add, index) => (
                   <div key={add.id} className="py-2.5 first:pt-0 last:pb-0 space-y-1.5 border-b last:border-b-0 border-slate-100">
                     <div className="flex justify-between items-start gap-2">
-                      <p className="font-bold text-slate-800">
+                      <p className="font-bold text-slate-800 contract-detail-subsection-title">
                         {index + 1}. Adendum No: <span className="font-mono text-xs text-indigo-600 font-bold">{add.noAdendum}</span>
                       </p>
-                      <span className="text-[10px] text-slate-500 font-bold">{add.tanggalAdendum}</span>
+                      <span className="text-[10px] text-slate-500 font-bold contract-detail-small">{add.tanggalAdendum}</span>
                     </div>
                     
                     {/* Keterangan Perubahan - Made BOLD and LARGER */}
                     <div className="space-y-1">
-                      <p className="text-[11px] font-semibold text-slate-500">Keterangan Perubahan:</p>
-                      <p className="text-slate-800 text-sm font-bold leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200">{add.keterangan}</p>
+                      <p className="text-[11px] font-semibold text-slate-500 contract-detail-label">Keterangan Perubahan:</p>
+                      <p className="text-slate-800 text-sm font-bold leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200 contract-detail-adendum-keterangan">{add.keterangan}</p>
                     </div>
                     
                     <div className="flex flex-wrap gap-4 text-[10px] font-bold text-slate-500 pl-1">
@@ -792,7 +793,7 @@ export default function ContractDetail({
           {/* Attachments List */}
           <div id="berkas-digital" className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
-              <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 contract-detail-section-heading">
                 <Paperclip className="w-4 h-4 text-indigo-600" />
                 Berkas Kontrak Digital
               </h3>
