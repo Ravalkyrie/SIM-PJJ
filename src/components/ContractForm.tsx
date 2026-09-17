@@ -4,12 +4,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KontrakFisik, KABUPATEN_PRESETS } from '../types';
+import { KontrakFisik, KABUPATEN_PRESETS, UraianPekerjaan } from '../types';
 import { FileText, Coins, MapPin, Calendar, Clock, User, Check, ArrowLeft, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { createEmptyUraianPekerjaan } from '../lib/uraianPekerjaan';
+import UraianPekerjaanFormSection from './UraianPekerjaanFormSection';
 
 interface ContractFormProps {
   initialContract?: KontrakFisik;
-  onSave: (contract: KontrakFisik) => void;
+  initialUraianPekerjaan?: UraianPekerjaan;
+  onSave: (contract: KontrakFisik, uraianPekerjaan: UraianPekerjaan) => void;
   onCancel: () => void;
 }
 
@@ -25,7 +28,7 @@ const addDaysToDate = (dateStr: string, days: number): string => {
   }
 };
 
-export default function ContractForm({ initialContract, onSave, onCancel }: ContractFormProps) {
+export default function ContractForm({ initialContract, initialUraianPekerjaan, onSave, onCancel }: ContractFormProps) {
   const isEdit = !!initialContract;
 
   // Form Fields
@@ -54,6 +57,15 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
   const [kegiatanPreservasi, setKegiatanPreservasi] = useState('');
   const [waktuPemeliharaan, setWaktuPemeliharaan] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  
+  // Uraian Pekerjaan State
+  const [uraianPekerjaan, setUraianPekerjaan] = useState<UraianPekerjaan>(() => {
+    if (initialUraianPekerjaan) {
+      return initialUraianPekerjaan;
+    }
+    const contractId = initialContract?.id || `TEMP-${Date.now()}`;
+    return createEmptyUraianPekerjaan(contractId);
+  });
 
   // Auto calculate target completion date
   useEffect(() => {
@@ -165,7 +177,13 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
       lampiran: initialContract?.lampiran || []
     };
 
-    onSave(savedContract);
+    // Update uraianPekerjaan contractId with final contract id
+    const finalUraianPekerjaan = {
+      ...uraianPekerjaan,
+      contractId: savedContract.id
+    };
+
+    onSave(savedContract, finalUraianPekerjaan);
   };
 
   return (
@@ -601,9 +619,15 @@ export default function ContractForm({ initialContract, onSave, onCancel }: Cont
           </div>
         </div>
 
+        {/* Section G: Uraian Pekerjaan */}
+        <UraianPekerjaanFormSection
+          uraianPekerjaan={uraianPekerjaan}
+          onChange={setUraianPekerjaan}
+        />
+
         {/* Catatan / Keterangan Tambahan */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-xs p-4 space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">G. Keterangan / Catatan Tambahan (Evaluasi Lapangan)</label>
+          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">H. Keterangan / Catatan Tambahan (Evaluasi Lapangan)</label>
           <textarea
             value={catatanPekerjaan}
             onChange={(e) => setCatatanPekerjaan(e.target.value)}

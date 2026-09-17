@@ -5,15 +5,18 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole } from '../types';
+import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole, UraianPekerjaan } from '../types';
 import ContractDetail from '../components/ContractDetail';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
 
 interface ContractDetailPageProps {
   contracts: KontrakFisik[];
+  uraianPekerjaanMap: Map<string, UraianPekerjaan>;
   onDelete: (id: string) => void;
   onUpdateProgress: (id: string, progresFisik: number, progresKeuangan: number, status: KontrakFisik['status'], catatan: string) => void;
   onAddAdendum: (id: string, adendum: Omit<AdendumKontrak, 'id'>) => void;
+  onUpdateAdendum: (id: string, adendumId: string, adendum: Omit<AdendumKontrak, 'id'>) => void;
+  onDeleteAdendum: (id: string, adendumId: string) => void;
   onAddLampiran: (id: string, lampiran: Omit<DokumenLampiran, 'id'>) => void;
   onDeleteLampiran: (id: string, lampiranId: string) => void;
   userRole?: UserRole;
@@ -21,9 +24,12 @@ interface ContractDetailPageProps {
 
 export default function ContractDetailPage({
   contracts,
+  uraianPekerjaanMap,
   onDelete,
   onUpdateProgress,
   onAddAdendum,
+  onUpdateAdendum,
+  onDeleteAdendum,
   onAddLampiran,
   onDeleteLampiran,
   userRole = 'user'
@@ -33,6 +39,7 @@ export default function ContractDetailPage({
   const [searchParams] = useSearchParams();
 
   const contract = contracts.find(c => c.id === id);
+  const uraianPekerjaan = id ? uraianPekerjaanMap.get(id) : undefined;
 
   // Handle automatic scroll to section
   useEffect(() => {
@@ -103,11 +110,14 @@ export default function ContractDetailPage({
   return (
     <ContractDetail
       contract={contract}
+      uraianPekerjaan={uraianPekerjaan}
       onBack={handleBack}
       onEdit={handleEdit}
       onDelete={handleDelete}
       onUpdateProgress={onUpdateProgress}
       onAddAdendum={onAddAdendum}
+      onUpdateAdendum={onUpdateAdendum}
+      onDeleteAdendum={onDeleteAdendum}
       onAddLampiran={onAddLampiran}
       onDeleteLampiran={onDeleteLampiran}
       userRole={userRole}

@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole } from '../types';
+import { KontrakFisik, AdendumKontrak, DokumenLampiran, UserRole, UraianPekerjaan } from '../types';
 import { formatRupiah, formatBriefRupiah } from './DashboardView';
+import UraianPekerjaanDisplaySection from './UraianPekerjaanDisplaySection';
 import { 
   ArrowLeft, 
   Edit, 
@@ -35,28 +36,36 @@ import {
   Database,
   Cloud,
   Copy,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Printer
 } from 'lucide-react';
+import ContractPrintPreview from './ContractPrintPreview';
 
 interface ContractDetailProps {
   contract: KontrakFisik;
+  uraianPekerjaan?: UraianPekerjaan | null;
   onBack: () => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onUpdateProgress: (id: string, progresFisik: number, progresKeuangan: number, status: KontrakFisik['status'], catatan: string) => void;
   onAddAdendum: (id: string, adendum: Omit<AdendumKontrak, 'id'>) => void;
+  onUpdateAdendum: (id: string, adendumId: string, adendum: Omit<AdendumKontrak, 'id'>) => void;
+  onDeleteAdendum: (id: string, adendumId: string) => void;
   onAddLampiran: (id: string, lampiran: Omit<DokumenLampiran, 'id'>) => void;
   onDeleteLampiran: (id: string, lampiranId: string) => void;
   userRole?: UserRole;
 }
 
 export default function ContractDetail({ 
-  contract, 
+  contract,
+  uraianPekerjaan,
   onBack, 
   onEdit, 
   onDelete, 
   onUpdateProgress,
   onAddAdendum,
+  onUpdateAdendum,
+  onDeleteAdendum,
   onAddLampiran,
   onDeleteLampiran,
   userRole = 'user'
@@ -84,11 +93,18 @@ export default function ContractDetail({
   const [perubahanWaktu, setPerubahanWaktu] = useState<number | ''>('');
   const [keteranganAdendum, setKeteranganAdendum] = useState('');
 
+  // Local state for Adendum Edit
+  const [editingAdendumId, setEditingAdendumId] = useState<string | null>(null);
+  const [adendumToDelete, setAdendumToDelete] = useState<AdendumKontrak | null>(null);
+
   // Local state for File Upload (URL/Link Berkas)
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [namaFile, setNamaFile] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [tipeDokumen, setTipeDokumen] = useState<string>('Dokumen Kontrak');
+
+  // Local state for Print Preview
+  const [printPreviewContract, setPrintPreviewContract] = useState<KontrakFisik | null>(null);
 
   // Delete safety check
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -154,6 +170,7 @@ export default function ContractDetail({
   };
 
   // Handle adding Adendum
+  // Handle adding or updating Adendum
   const handleSaveAdendum = (e: React.FormEvent) => {
     e.preventDefault();
     if (!noAdendum || !tanggalAdendum) {
@@ -161,12 +178,28 @@ export default function ContractDetail({
       return;
     }
     setErrorAdendum(null);
-    onAddAdendum(contract.id, {
-      noAdendum,
-      tanggalAdendum,
-      perubahanWaktu: perubahanWaktu === '' ? undefined : Number(perubahanWaktu),
-      keterangan: `${jenisAdendum}: ${keteranganAdendum}`
-    });
+    
+    if (editingAdendumId) {
+      // Update existing adendum
+      onUpdateAdendum(contract.id, editingAdendumId, {
+        noAdendum,
+        tanggalAdendum,
+        perubahanWaktu: perubahanWaktu === '' ? undefined : Number(perubahanWaktu),
+        keterangan: `${jenisAdendum}: ${keteranganAdendum}`
+      });
+      showToast(`${jenisAdendum} No. ${noAdendum} berhasil diperbarui!`, "success");
+      setEditingAdendumId(null);
+    } else {
+      // Add new adendum
+      onAddAdendum(contract.id, {
+        noAdendum,
+        tanggalAdendum,
+        perubahanWaktu: perubahanWaktu === '' ? undefined : Number(perubahanWaktu),
+        keterangan: `${jenisAdendum}: ${keteranganAdendum}`
+      });
+      showToast(`${jenisAdendum} No. ${noAdendum} berhasil ditambahkan!`, "success");
+    }
+    
     // Reset
     setNoAdendum('');
     setTanggalAdendum('');
@@ -174,7 +207,50 @@ export default function ContractDetail({
     setPerubahanWaktu('');
     setKeteranganAdendum('');
     setShowAdendumForm(false);
-    showToast(`${jenisAdendum} No. ${noAdendum} berhasil ditambahkan!`, "success");
+  };
+
+  // Handle editing an adendum
+  const handleEditAdendum = (adendum: AdendumKontrak) => {
+    setEditingAdendumId(adendum.id);
+    setNoAdendum(adendum.noAdendum);
+    setTanggalAdendum(adendum.tanggalAdendum);
+    setPerubahanWaktu(adendum.perubahanWaktu !== undefined ? adendum.perubahanWaktu : '');
+    
+    // Parse jenis and keterangan from the stored format "Adendum I: keterangan"
+    const keteranganParts = adendum.keterangan.split(': ');
+    if (keteranganParts.length >= 2) {
+      const jenis = keteranganParts[0].trim() as 'Adendum I' | 'Adendum II';
+      const keterangan = keteranganParts.slice(1).join(': '); // In case there are multiple colons
+      setJenisAdendum(jenis);
+      setKeteranganAdendum(keterangan);
+    } else {
+      setJenisAdendum('Adendum I');
+      setKeteranganAdendum(adendum.keterangan);
+    }
+    
+    setShowAdendumForm(true);
+    setErrorAdendum(null);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteAdendumConfirm = () => {
+    if (adendumToDelete) {
+      onDeleteAdendum(contract.id, adendumToDelete.id);
+      showToast(`Adendum No. ${adendumToDelete.noAdendum} berhasil dihapus!`, "success");
+      setAdendumToDelete(null);
+    }
+  };
+
+  // Cancel edit mode
+  const handleCancelEdit = () => {
+    setEditingAdendumId(null);
+    setNoAdendum('');
+    setTanggalAdendum('');
+    setJenisAdendum('Adendum I');
+    setPerubahanWaktu('');
+    setKeteranganAdendum('');
+    setShowAdendumForm(false);
+    setErrorAdendum(null);
   };
 
   const handleSaveUpload = (e: React.FormEvent) => {
@@ -239,6 +315,14 @@ export default function ContractDetail({
             >
               <Edit className="w-3.5 h-3.5 text-amber-400" />
               Edit Kontrak
+            </button>
+            <button
+              onClick={() => setPrintPreviewContract(contract)}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Cetak</span>
+              <span className="sm:hidden">Cetak</span>
             </button>
             <button
               onClick={() => setShowDeleteConfirm(true)}
@@ -331,6 +415,42 @@ export default function ContractDetail({
         </div>
       )}
 
+      {/* Delete Adendum Confirmation Modal */}
+      {adendumToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-md w-full p-5 space-y-4 animate-scale-in">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="p-2 bg-rose-50 rounded border border-rose-100">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+              </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">Hapus Adendum?</h3>
+            </div>
+            <div className="text-xs text-slate-600 leading-relaxed space-y-2">
+              <p>Apakah Anda yakin ingin menghapus adendum ini?</p>
+              <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-1">
+                <p><strong className="text-slate-800">Nomor:</strong> {adendumToDelete.noAdendum}</p>
+                <p><strong className="text-slate-800">Tanggal:</strong> {adendumToDelete.tanggalAdendum}</p>
+                <p><strong className="text-slate-800">Keterangan:</strong> {adendumToDelete.keterangan}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end text-xs pt-1">
+              <button
+                onClick={() => setAdendumToDelete(null)}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDeleteAdendumConfirm}
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded transition shadow-sm cursor-pointer"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left 2 Columns: Contract Document Card */}
@@ -359,81 +479,81 @@ export default function ContractDetail({
               {/* No Kontrak Banner */}
               <div className="bg-slate-50 border border-slate-200 rounded p-3 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Nomor Registrasi Kontrak</p>
-                  <p className="font-mono text-xs font-bold text-slate-800">{contract.noKontrak}</p>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nomor Registrasi Kontrak</p>
+                  <p className="font-mono text-sm font-bold text-slate-800">{contract.noKontrak}</p>
                 </div>
                 <div className="flex gap-1.5">
-                  <span className="text-[10px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                  <span className="text-[11px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded border border-slate-200">
                     TA {contract.tahunAnggaran}
                   </span>
-                  <span className="text-[10px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded">
                     DANA {contract.sumberDana}
                   </span>
                 </div>
               </div>
 
               {/* Paket Pekerjaan */}
-              <div className="space-y-0.5">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama Paket Pekerjaan</h3>
-                <p className="text-sm font-bold text-slate-900 leading-snug">{contract.namaPaket}</p>
+              <div className="space-y-1">
+                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Paket Pekerjaan</h3>
+                <p className="text-base md:text-lg font-extrabold text-slate-900 leading-snug md:leading-normal">{contract.namaPaket}</p>
               </div>
 
               {/* Section 1: Lokasi & Nilai */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3.5 border-t border-slate-100">
                 {/* Lokasi */}
                 <div className="space-y-2">
-                  <h4 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     Lokasi & Wilayah
                   </h4>
                   <div className="space-y-2 bg-slate-50 p-3 rounded border border-slate-200">
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-slate-500 font-semibold">Kab/Kota</span>
-                      <span className="sm:col-span-2 font-bold text-slate-800"><span className="hidden sm:inline">: </span>{contract.kabupatenKota}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold">Kab/Kota</span>
+                      <span className="sm:col-span-2 text-sm font-bold text-slate-800"><span className="hidden sm:inline">: </span>{contract.kabupatenKota}</span>
                     </div>
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-slate-500 font-semibold">Ruas Jalan</span>
-                      <span className="sm:col-span-2 font-medium text-slate-700 leading-tight"><span className="hidden sm:inline">: </span>{contract.lokasiRuas}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold">Ruas Jalan</span>
+                      <span className="sm:col-span-2 text-sm font-medium text-slate-700 leading-tight"><span className="hidden sm:inline">: </span>{contract.lokasiRuas}</span>
                     </div>
                     {contract.panjangEfektif && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-slate-500 font-semibold">Pj. Efektif</span>
-                        <span className="sm:col-span-2 font-bold text-indigo-600"><span className="hidden sm:inline">: </span>{contract.panjangEfektif}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold">Pj. Efektif</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-indigo-600"><span className="hidden sm:inline">: </span>{contract.panjangEfektif}</span>
                       </div>
                     )}
                     {contract.kegiatanPreservasi && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-slate-500 font-semibold">Preservasi</span>
-                        <span className="sm:col-span-2 font-bold text-amber-700"><span className="hidden sm:inline">: </span>{contract.kegiatanPreservasi}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold">Preservasi</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-amber-700"><span className="hidden sm:inline">: </span>{contract.kegiatanPreservasi}</span>
                       </div>
                     )}
                     {contract.waktuPemeliharaan && (
                       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                        <span className="text-slate-500 font-semibold">Wkt. Pemeliharaan</span>
-                        <span className="sm:col-span-2 font-bold text-emerald-700"><span className="hidden sm:inline">: </span>{contract.waktuPemeliharaan}</span>
+                        <span className="text-[11px] text-slate-500 font-semibold">Wkt. Pemeliharaan</span>
+                        <span className="sm:col-span-2 text-sm font-bold text-emerald-700"><span className="hidden sm:inline">: </span>{contract.waktuPemeliharaan}</span>
                       </div>
                     )}
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-slate-500 font-semibold">Tanggal Kontrak</span>
-                      <span className="sm:col-span-2 font-bold text-slate-700"><span className="hidden sm:inline">: </span>{contract.tanggalKontrak}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold">Tanggal Kontrak</span>
+                      <span className="sm:col-span-2 text-sm font-bold text-slate-700"><span className="hidden sm:inline">: </span>{contract.tanggalKontrak}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Nilai Kontrak */}
                 <div className="space-y-2">
-                  <h4 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                     <Coins className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     Rincian Keuangan
                   </h4>
                   <div className="space-y-2 bg-slate-50 p-3 rounded border border-slate-200">
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-slate-500">Anggaran DPA</span>
-                      <span className="sm:col-span-2 font-medium text-slate-700"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiHps)}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold">Anggaran DPA</span>
+                      <span className="sm:col-span-2 text-sm font-medium text-slate-700"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiHps)}</span>
                     </div>
                     <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-1">
-                      <span className="text-slate-500 font-bold">Nilai Kontrak</span>
-                      <span className="sm:col-span-2 font-extrabold text-slate-900 text-xs"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiKontrak)}</span>
+                      <span className="text-[11px] text-slate-500 font-bold">Nilai Kontrak</span>
+                      <span className="sm:col-span-2 text-sm font-extrabold text-slate-900"><span className="hidden sm:inline">: </span>{formatRupiah(contract.nilaiKontrak)}</span>
                     </div>
                   </div>
                 </div>
@@ -441,46 +561,46 @@ export default function ContractDetail({
 
               {/* Section 2: Administrasi Pelaksana */}
               <div className="space-y-2 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                   <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
                   Administrasi Pekerjaan & Stakeholders
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[9px] uppercase tracking-wider">Penyedia Jasa (Kontraktor)</p>
-                    <p className="font-bold text-slate-800 leading-tight">{contract.kontraktorPelaksana}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Penyedia Jasa (Kontraktor)</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.kontraktorPelaksana}</p>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[9px] uppercase tracking-wider">Konsultan Pengawas</p>
-                    <p className="font-bold text-slate-800 leading-tight">{contract.konsultanPengawas}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Konsultan Pengawas</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.konsultanPengawas}</p>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded border border-slate-200 space-y-0.5">
-                    <p className="text-slate-500 font-semibold text-[9px] uppercase tracking-wider">Pejabat Pembuat Komitmen (PPK)</p>
-                    <p className="font-bold text-slate-800 leading-tight">{contract.pejabatPembuatKomitmen}</p>
-                    <p className="text-[9px] text-slate-400 font-mono">NIP: {contract.nipPpk}</p>
+                    <p className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Pejabat Pembuat Komitmen (PPK)</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">{contract.pejabatPembuatKomitmen}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">NIP: {contract.nipPpk}</p>
                   </div>
                 </div>
               </div>
 
               {/* Section 3: Jadwal Pelaksanaan */}
               <div className="space-y-2 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-amber-500" />
                   Masa Waktu Pelaksanaan
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 bg-slate-50 p-3 rounded border border-slate-200">
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-slate-500 font-semibold">Jangka Waktu</p>
-                    <p className="font-bold text-slate-800">{contract.jangkaWaktu} Hari Kalender</p>
+                    <p className="text-[11px] text-slate-500 font-semibold">Jangka Waktu</p>
+                    <p className="text-sm font-bold text-slate-800">{contract.jangkaWaktu} Hari Kalender</p>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-slate-500 font-semibold">Tanggal Mulai (SPMK)</p>
-                    <p className="font-bold text-slate-800">{contract.tanggalMulai}</p>
+                    <p className="text-[11px] text-slate-500 font-semibold">Tanggal Mulai (SPMK)</p>
+                    <p className="text-sm font-bold text-slate-800">{contract.tanggalMulai}</p>
                   </div>
                   {contract.nomorSpmk && (
                     <div className="space-y-0.5">
-                      <p className="text-[10px] text-slate-500 font-semibold">Nomor SPMK</p>
-                      <p className="font-bold text-slate-800 text-xs font-mono break-all leading-tight">
+                      <p className="text-[11px] text-slate-500 font-semibold">Nomor SPMK</p>
+                      <p className="text-sm font-bold text-slate-800 font-mono break-all leading-tight">
                         {contract.nomorSpmk}
                       </p>
                     </div>
@@ -490,28 +610,38 @@ export default function ContractDetail({
 
               {/* Catatan Pekerjaan */}
               <div className="space-y-1.5 pt-3.5 border-t border-slate-100">
-                <h4 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider">Catatan Evaluasi / Rekomendasi Lapangan</h4>
-                <div className="bg-amber-50/50 border border-amber-200 p-3 rounded text-[11px] text-slate-700 leading-relaxed font-sans">
+                <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Catatan Evaluasi / Rekomendasi Lapangan</h4>
+                <div className="bg-amber-50/50 border border-amber-200 p-3 rounded text-xs text-slate-700 leading-relaxed font-sans">
                   {contract.catatanPekerjaan || "Tidak ada catatan evaluasi khusus untuk pekerjaan ini."}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Uraian Pekerjaan Section */}
+          <UraianPekerjaanDisplaySection uraianPekerjaan={uraianPekerjaan || null} />
+
           {/* Adendum Section */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                   <History className="w-4 h-4 text-violet-600 animate-spin-slow" />
                   Daftar Adendum Kontrak
                 </h3>
-                <p className="text-[10px] text-slate-500">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
+                <p className="text-[11px] text-slate-500">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
               </div>
               {userRole !== 'visitor' && (
                 <button
                   id="btn-add-adendum"
-                  onClick={() => setShowAdendumForm(!showAdendumForm)}
+                  onClick={() => {
+                    if (showAdendumForm && editingAdendumId) {
+                      handleCancelEdit();
+                    } else {
+                      setShowAdendumForm(!showAdendumForm);
+                      setEditingAdendumId(null);
+                    }
+                  }}
                   className="flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-wider cursor-pointer transition"
                 >
                   {showAdendumForm ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -529,10 +659,12 @@ export default function ContractDetail({
                     <span>{errorAdendum}</span>
                   </div>
                 )}
-                <h4 className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Formulir Input Adendum I dan Adendum II</h4>
+                <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                  {editingAdendumId ? 'Edit Adendum' : 'Formulir Input Adendum I dan Adendum II'}
+                </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-500">Jenis Adendum</label>
+                    <label className="text-[11px] font-semibold text-slate-500">Jenis Adendum</label>
                     <select
                       value={jenisAdendum}
                       onChange={(e) => setJenisAdendum(e.target.value as 'Adendum I' | 'Adendum II')}
@@ -544,7 +676,7 @@ export default function ContractDetail({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-500">Nomor Adendum</label>
+                    <label className="text-[11px] font-semibold text-slate-500">Nomor Adendum</label>
                     <input
                       type="text"
                       value={noAdendum}
@@ -555,7 +687,7 @@ export default function ContractDetail({
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-500">Tanggal Adendum</label>
+                    <label className="text-[11px] font-semibold text-slate-500">Tanggal Adendum</label>
                     <input
                       type="date"
                       value={tanggalAdendum}
@@ -565,7 +697,7 @@ export default function ContractDetail({
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-500">Perubahan Waktu (Hari Kalender)</label>
+                    <label className="text-[11px] font-semibold text-slate-500">Perubahan Waktu (Hari Kalender)</label>
                     <input
                       type="number"
                       value={perubahanWaktu}
@@ -576,7 +708,7 @@ export default function ContractDetail({
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-slate-500">Keterangan Perubahan</label>
+                  <label className="text-[11px] font-semibold text-slate-500">Keterangan Perubahan</label>
                   <textarea
                     value={keteranganAdendum}
                     onChange={(e) => setKeteranganAdendum(e.target.value)}
@@ -591,7 +723,7 @@ export default function ContractDetail({
                     type="submit"
                     className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded transition cursor-pointer"
                   >
-                    Simpan Adendum
+                    {editingAdendumId ? 'Simpan Perubahan' : 'Simpan Adendum'}
                   </button>
                 </div>
               </form>
@@ -603,16 +735,21 @@ export default function ContractDetail({
             ) : (
               <div className="divide-y divide-slate-100 text-xs">
                 {contract.adendum.map((add, index) => (
-                  <div key={add.id} className="py-2.5 first:pt-0 last:pb-0 space-y-1.5">
+                  <div key={add.id} className="py-2.5 first:pt-0 last:pb-0 space-y-1.5 border-b last:border-b-0 border-slate-100">
                     <div className="flex justify-between items-start gap-2">
                       <p className="font-bold text-slate-800">
                         {index + 1}. Adendum No: <span className="font-mono text-xs text-indigo-600 font-bold">{add.noAdendum}</span>
                       </p>
                       <span className="text-[10px] text-slate-500 font-bold">{add.tanggalAdendum}</span>
                     </div>
-                    <p className="text-slate-600 text-[11px] leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200">{add.keterangan}</p>
                     
-                    <div className="flex gap-4 text-[10px] font-bold text-slate-500 pl-1">
+                    {/* Keterangan Perubahan - Made BOLD and LARGER */}
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold text-slate-500">Keterangan Perubahan:</p>
+                      <p className="text-slate-800 text-sm font-bold leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200">{add.keterangan}</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4 text-[10px] font-bold text-slate-500 pl-1">
                       {add.perubahanNilai !== undefined && (
                         <span>
                           Perubahan Anggaran: <strong className={add.perubahanNilai >= 0 ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
@@ -622,10 +759,30 @@ export default function ContractDetail({
                       )}
                       {add.perubahanWaktu !== undefined && (
                         <span>
-                          Penyesuaian Waktu: <strong className="text-amber-600 font-bold">+{add.perubahanWaktu} Hari</strong>
+                          Penyesuaian Waktu: <strong className="text-amber-600 font-bold">{add.perubahanWaktu >= 0 ? '+' : ''}{add.perubahanWaktu} Hari</strong>
                         </span>
                       )}
                     </div>
+
+                    {/* Edit and Delete Buttons */}
+                    {userRole !== 'visitor' && (
+                      <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100">
+                        <button
+                          onClick={() => handleEditAdendum(add)}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded transition cursor-pointer"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setAdendumToDelete(add)}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Hapus
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -635,7 +792,7 @@ export default function ContractDetail({
           {/* Attachments List */}
           <div id="berkas-digital" className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-3.5">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                 <Paperclip className="w-4 h-4 text-indigo-600" />
                 Berkas Kontrak Digital
               </h3>
@@ -660,7 +817,7 @@ export default function ContractDetail({
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-slate-700 uppercase tracking-wider text-[9px]">Tambah Tautan Berkas Digital</p>
+                  <p className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Tambah Tautan Berkas Digital</p>
                 </div>
                 
                 {/* Nama Berkas */}
@@ -767,7 +924,7 @@ export default function ContractDetail({
                     
                     {presentCategories.length > 1 && (
                       <div className="flex flex-wrap gap-1 items-center">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Filter Kategori:</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Filter Kategori:</span>
                         {presentCategories.map(cat => (
                           <button
                             key={cat}
@@ -819,7 +976,7 @@ export default function ContractDetail({
                                   {lamp.namaFile}
                                 </p>
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className={`inline-flex items-center text-[9px] font-extrabold px-1.5 py-0.5 rounded border tracking-wide uppercase ${getCategoryColor(lamp.tipeDokumen)}`}>
+                                  <span className={`inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.5 rounded border tracking-wide uppercase ${getCategoryColor(lamp.tipeDokumen)}`}>
                                     {lamp.tipeDokumen || 'Dokumen Kontrak'}
                                   </span>
                                 </div>
@@ -953,11 +1110,11 @@ export default function ContractDetail({
 
                 {/* Status Indicator Big */}
                 <div className="pt-1.5">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Lapangan</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Lapangan</p>
                   <div className="p-2.5 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
                     <div>
                       <p className="font-bold text-slate-800 text-xs">{contract.status.toUpperCase()}</p>
-                      <p className="text-[9px] text-slate-400 font-semibold">
+                      <p className="text-[10px] text-slate-400 font-semibold">
                         {contract.status === 'Kritis' ? 'Deviasi tinggi, butuh evaluasi' : 'Progres sesuai target jadwal'}
                       </p>
                     </div>
@@ -1082,6 +1239,15 @@ export default function ContractDetail({
           </div>
         </div>
       </div>
+
+      {/* Print Preview Modal */}
+      {printPreviewContract && (
+        <ContractPrintPreview
+          contract={printPreviewContract}
+          uraianPekerjaan={uraianPekerjaan}
+          onClose={() => setPrintPreviewContract(null)}
+        />
+      )}
     </div>
   );
 }

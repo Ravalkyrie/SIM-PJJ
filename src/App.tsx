@@ -16,7 +16,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { User } from 'firebase/auth';
-import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS, AppUser, UserRole } from './types';
+import { KontrakFisik, AdendumKontrak, DokumenLampiran, ActivityLog, KABUPATEN_PRESETS, AppUser, UserRole, UraianPekerjaan } from './types';
 import DashboardPage from './pages/DashboardPage';
 import ContractsPage from './pages/ContractsPage';
 import ContractDetailPage from './pages/ContractDetailPage';
@@ -118,6 +118,7 @@ function AppContent() {
 
   // Master State
   const [contracts, setContracts] = useState<KontrakFisik[]>([]);
+  const [uraianPekerjaanMap, setUraianPekerjaanMap] = useState<Map<string, UraianPekerjaan>>(new Map());
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [appUsers, setAppUsers] = useState<AppUser[]>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -214,6 +215,36 @@ function AppContent() {
     };
 
     loadContracts();
+  }, [user]);
+
+  // Load uraian pekerjaan from Firestore
+  useEffect(() => {
+    if (!user) return;
+
+    const loadUraianPekerjaan = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "uraian_pekerjaan"));
+        const newMap = new Map<string, UraianPekerjaan>();
+        
+        snapshot.docs.forEach((docSnap) => {
+          const data = docSnap.data() as UraianPekerjaan;
+          if (data.contractId) {
+            newMap.set(data.contractId, {
+              ...data,
+              firestoreId: docSnap.id
+            } as any);
+          }
+        });
+
+        setUraianPekerjaanMap(newMap);
+        console.log("✅ Berhasil mengambil", newMap.size, "uraian pekerjaan dari Firestore");
+      } catch (error: any) {
+        console.error("⚠️ Gagal mengambil uraian pekerjaan:", error);
+        // Non-critical, just log the error
+      }
+    };
+
+    loadUraianPekerjaan();
   }, [user]);
 
   // Load activity logs from Firestore
@@ -386,8 +417,24 @@ function AppContent() {
       // Delete from Firestore
       await deleteDoc(doc(db, "kontrak", contract.firestoreId || id));
 
+      // Delete associated uraian pekerjaan if exists
+      const uraianPekerjaan = uraianPekerjaanMap.get(id);
+      if (uraianPekerjaan && (uraianPekerjaan as any).firestoreId) {
+        try {
+          await deleteDoc(doc(db, "uraian_pekerjaan", (uraianPekerjaan as any).firestoreId));
+          console.log("✅ Uraian pekerjaan berhasil dihapus");
+        } catch (error) {
+          console.error("⚠️ Gagal menghapus uraian pekerjaan:", error);
+        }
+      }
+
       // Update local state
       setContracts((prev) => prev.filter((c) => c.id !== id));
+      setUraianPekerjaanMap((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(id);
+        return newMap;
+      });
 
       // Log the deletion
       await addLog('DELETE', contract, `Menghapus berkas kontrak "${contract.namaPaket}" dari sistem`);
@@ -400,7 +447,7 @@ function AppContent() {
   };
   
   // Save new/edited contract
-  const handleSaveContract = async (saved: KontrakFisik) => {
+  const handleSaveContract = async (saved: KontrakFisik, uraianPekerjaan: UraianPekerjaan) => {
     // Check permission
     if (!hasPermission(currentUserRole, 'write')) {
       alert('Anda tidak memiliki izin untuk menambah/mengubah kontrak');
@@ -410,10 +457,20 @@ function AppContent() {
     try {
       const isEdit = contracts.some(c => c.id === saved.id);
 
-      // Save to Firestore
+      // Save contract to Firestore
       await setDoc(doc(db, "kontrak", saved.id), {
         ...saved,
         createdAt: new Date().toISOString(),
+      });
+
+      // Save uraian pekerjaan to Firestore
+      const existingUraian = uraianPekerjaanMap.get(saved.id);
+      const uraianFirestoreId = (existingUraian as any)?.firestoreId || `URAIAN-${saved.id}`;
+      
+      await setDoc(doc(db, "uraian_pekerjaan", uraianFirestoreId), {
+        ...uraianPekerjaan,
+        contractId: saved.id,
+        updatedAt: new Date().toISOString(),
       });
 
       // Update local state
@@ -426,6 +483,13 @@ function AppContent() {
         setContracts([saved, ...contracts]);
         await addLog('CREATE', saved, `Melakukan penginputan dan pendaftaran berkas kontrak baru "${saved.namaPaket}" senilai Rp ${saved.nilaiKontrak.toLocaleString('id-ID')}`);
       }
+
+      // Update uraian pekerjaan map
+      setUraianPekerjaanMap((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(saved.id, { ...uraianPekerjaan, firestoreId: uraianFirestoreId } as any);
+        return newMap;
+      });
 
       console.log("✅ Data berhasil disimpan ke Firestore");
     } catch (error) {
@@ -614,6 +678,136 @@ function AppContent() {
     } catch (error) {
       console.error("❌ Gagal menghapus lampiran:", error);
       alert("Gagal menghapus lampiran");
+    }
+  };
+
+  // Update Adendum
+  const handleUpdateAdendum = async (id: string, adendumId: string, updatedAdendumOmit: Omit<AdendumKontrak, 'id'>) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'write')) {
+      alert('Anda tidak memiliki izin untuk mengubah adendum');
+      return;
+    }
+
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
+
+      const existingAdendum = found.adendum.find((ad: AdendumKontrak) => ad.id === adendumId);
+      if (!existingAdendum) return;
+
+      // Update the adendum object
+      const updatedAdendum: AdendumKontrak = {
+        id: adendumId,
+        noAdendum: updatedAdendumOmit.noAdendum,
+        tanggalAdendum: updatedAdendumOmit.tanggalAdendum,
+        keterangan: updatedAdendumOmit.keterangan,
+        ...(updatedAdendumOmit.perubahanNilai !== undefined && { perubahanNilai: updatedAdendumOmit.perubahanNilai }),
+        ...(updatedAdendumOmit.perubahanWaktu !== undefined && { perubahanWaktu: updatedAdendumOmit.perubahanWaktu })
+      };
+
+      // Calculate the difference in values to adjust contract
+      const oldPerubahanNilai = existingAdendum.perubahanNilai || 0;
+      const newPerubahanNilai = updatedAdendumOmit.perubahanNilai || 0;
+      const nilaiDifference = newPerubahanNilai - oldPerubahanNilai;
+
+      const oldPerubahanWaktu = existingAdendum.perubahanWaktu || 0;
+      const newPerubahanWaktu = updatedAdendumOmit.perubahanWaktu || 0;
+      const waktuDifference = newPerubahanWaktu - oldPerubahanWaktu;
+
+      // Recalculate contract values
+      let updatedNilai = found.nilaiKontrak + nilaiDifference;
+      let updatedJangka = found.jangkaWaktu + waktuDifference;
+      let updatedSelesai = found.tanggalSelesai;
+
+      if (waktuDifference !== 0) {
+        try {
+          const date = new Date(found.tanggalMulai);
+          date.setDate(date.getDate() + updatedJangka);
+          updatedSelesai = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const updatedContract: KontrakFisik = {
+        ...found,
+        nilaiKontrak: updatedNilai,
+        jangkaWaktu: updatedJangka,
+        tanggalSelesai: updatedSelesai,
+        adendum: found.adendum.map((ad: AdendumKontrak) => ad.id === adendumId ? updatedAdendum : ad)
+      };
+
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the action
+      await addLog('UPDATE_ADENDUM', found, `Mengubah data adendum ${updatedAdendum.noAdendum}: ${updatedAdendum.keterangan}`);
+
+      console.log("✅ Adendum berhasil diupdate");
+    } catch (error) {
+      console.error("❌ Gagal mengupdate adendum:", error);
+      alert("Gagal mengupdate adendum");
+    }
+  };
+
+  // Delete Adendum
+  const handleDeleteAdendum = async (id: string, adendumId: string) => {
+    // Check permission
+    if (!hasPermission(currentUserRole, 'delete')) {
+      alert('Anda tidak memiliki izin untuk menghapus adendum');
+      return;
+    }
+
+    try {
+      const found = contracts.find((c: KontrakFisik) => c.id === id);
+      if (!found) return;
+
+      const adendum = found.adendum.find((ad: AdendumKontrak) => ad.id === adendumId);
+      if (!adendum) return;
+
+      // Reverse the changes made by this adendum
+      const perubahanNilai = adendum.perubahanNilai || 0;
+      const perubahanWaktu = adendum.perubahanWaktu || 0;
+
+      let updatedNilai = found.nilaiKontrak - perubahanNilai;
+      let updatedJangka = found.jangkaWaktu - perubahanWaktu;
+      let updatedSelesai = found.tanggalSelesai;
+
+      if (perubahanWaktu !== 0) {
+        try {
+          const date = new Date(found.tanggalMulai);
+          date.setDate(date.getDate() + updatedJangka);
+          updatedSelesai = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const updatedContract: KontrakFisik = {
+        ...found,
+        nilaiKontrak: updatedNilai,
+        jangkaWaktu: updatedJangka,
+        tanggalSelesai: updatedSelesai,
+        adendum: found.adendum.filter((ad: AdendumKontrak) => ad.id !== adendumId)
+      };
+
+      // Save to Firestore
+      await setDoc(doc(db, "kontrak", id), updatedContract);
+
+      // Update local state
+      setContracts(contracts.map((c: KontrakFisik) => c.id === id ? updatedContract : c));
+
+      // Log the action
+      await addLog('DELETE_ADENDUM', found, `Menghapus adendum ${adendum.noAdendum} dari berkas kontrak`);
+
+      console.log("✅ Adendum berhasil dihapus");
+    } catch (error) {
+      console.error("❌ Gagal menghapus adendum:", error);
+      alert("Gagal menghapus adendum");
     }
   };
 
@@ -907,6 +1101,7 @@ function AppContent() {
                     <PageTransition>
                       <ContractFormPage 
                         contracts={contracts}
+                        uraianPekerjaanMap={uraianPekerjaanMap}
                         onSave={handleSaveContract}
                       />
                     </PageTransition>
@@ -922,9 +1117,12 @@ function AppContent() {
                   <PageTransition>
                     <ContractDetailPage 
                       contracts={contracts}
+                      uraianPekerjaanMap={uraianPekerjaanMap}
                       onDelete={handleDeleteContract}
                       onUpdateProgress={handleUpdateProgress}
                       onAddAdendum={handleAddAdendum}
+                      onUpdateAdendum={handleUpdateAdendum}
+                      onDeleteAdendum={handleDeleteAdendum}
                       onAddLampiran={handleAddLampiran}
                       onDeleteLampiran={handleDeleteLampiran}
                       userRole={currentUserRole}
@@ -940,6 +1138,7 @@ function AppContent() {
                     <PageTransition>
                       <ContractFormPage 
                         contracts={contracts}
+                        uraianPekerjaanMap={uraianPekerjaanMap}
                         onSave={handleSaveContract}
                       />
                     </PageTransition>

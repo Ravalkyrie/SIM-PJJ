@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+  <!-- Outer border (dark blue/black) -->
+  <rect width="512" height="512" fill="#001F5C" stroke="#000000" stroke-width="8"/>
+  
+  <!-- Inner yellow border -->
+  <rect x="16" y="16" width="480" height="480" fill="none" stroke="#FFD100" stroke-width="12"/>
+  
+  <!-- Blue background for letters -->
+  <rect x="28" y="28" width="456" height="456" fill="#001F5C"/>
+  
+  <!-- Letter "P" - Large left semicircle (yellow) -->
+  <path d="
+    M 40 40
+    L 40 472
+    L 256 472
+    L 256 360
+    C 256 180, 140 80, 40 80
+    Z
+  " fill="#FFD100"/>
+  
+  <!-- Letter "U" - Right side vertical with rounded bottom (yellow) -->
+  <path d="
+    M 472 40
+    L 472 360
+    C 472 420, 420 472, 360 472
+    L 256 472
+    L 256 360
+    C 256 320, 288 288, 328 288
+    L 328 40
+    Z
+  " fill="#FFD100"/>
+  
+  <!-- Bottom left small semicircle (yellow) -->
+  <circle cx="150" cy="472" r="80" fill="#FFD100" clip-path="inset(0 0 50% 0)"/>
+  <rect x="70" y="472" width="160" height="40" fill="#FFD100"/>
+</svg>

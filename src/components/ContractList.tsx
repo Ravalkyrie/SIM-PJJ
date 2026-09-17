@@ -7,6 +7,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KontrakFisik, KABUPATEN_PRESETS, UserRole, DokumenLampiran } from '../types';
 import { formatBriefRupiah } from './DashboardView';
+import ContractPrintPreview from './ContractPrintPreview';
 import { 
   Search, 
   Filter, 
@@ -21,7 +22,8 @@ import {
   FileText,
   Download,
   FolderOpen,
-  X
+  X,
+  Printer
 } from 'lucide-react';
 
 interface ContractListProps {
@@ -65,6 +67,9 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
   
   // Modal for viewing files in a category
   const [categoryModal, setCategoryModal] = useState<{ category: string; files: DokumenLampiran[]; contractName: string } | null>(null);
+
+  // Print Preview State
+  const [printPreviewContract, setPrintPreviewContract] = useState<KontrakFisik | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -416,6 +421,16 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              setPrintPreviewContract(contract);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                            title="Cetak Kontrak"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onSelectContract(contract.id);
                             }}
                             className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded transition"
@@ -563,18 +578,30 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
 
                   <div className="flex justify-between items-center pt-1">
                     <span className="text-[10px] text-slate-400 italic">Klik untuk melihat detail lengkap</span>
-                    {userRole !== 'visitor' && (
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
+                          setPrintPreviewContract(contract);
                         }}
-                        className="p-1 px-2 text-rose-600 hover:bg-rose-50 rounded transition flex items-center gap-1 text-[11px] font-bold"
-                        title="Hapus Kontrak"
+                        className="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded transition flex items-center gap-1 text-[11px] font-bold"
+                        title="Cetak Kontrak"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Hapus
+                        <Printer className="w-3.5 h-3.5" /> Cetak
                       </button>
-                    )}
+                      {userRole !== 'visitor' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setContractToDelete({ id: contract.id, namaPaket: contract.namaPaket });
+                          }}
+                          className="p-1 px-2 text-rose-600 hover:bg-rose-50 rounded transition flex items-center gap-1 text-[11px] font-bold"
+                          title="Hapus Kontrak"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Hapus
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -733,6 +760,14 @@ export default function ContractList({ contracts, onSelectContract, onNavigateTo
             </div>
           </div>
         </div>
+      )}
+
+      {/* Print Preview Modal */}
+      {printPreviewContract && (
+        <ContractPrintPreview
+          contract={printPreviewContract}
+          onClose={() => setPrintPreviewContract(null)}
+        />
       )}
     </div>
   );

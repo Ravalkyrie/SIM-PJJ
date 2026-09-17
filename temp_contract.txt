@@ -1,0 +1,248 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import { KontrakFisik } from '../types';
+
+interface ContractPrintDocumentProps {
+  contract: KontrakFisik;
+}
+
+export default function ContractPrintDocument({ contract }: ContractPrintDocumentProps) {
+  // Format currency
+  const formatRupiah = (value: number): string => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Format date to Indonesian format
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+  };
+
+  return (
+    <div 
+      id="print-document" 
+      className="bg-white w-full h-full p-8 print:p-6"
+      style={{
+        width: '297mm',
+        height: '210mm',
+        margin: '0 auto',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      }}
+    >
+      {/* Header */}
+      <div className="text-center border-b-4 border-slate-900 pb-4 mb-6">
+        <div className="flex items-center justify-center gap-4 mb-3">
+          <div className="w-16 h-16 bg-slate-200 rounded flex items-center justify-center">
+            <span className="text-2xl font-bold text-slate-600">🏛️</span>
+          </div>
+          <div className="text-left">
+            <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              DINAS PEKERJAAN UMUM DAN PERUMAHAN RAKYAT
+            </h2>
+            <h1 className="text-lg font-extrabold text-slate-900 uppercase tracking-wide">
+              BIDANG BINA MARGA PROVINSI NTT
+            </h1>
+          </div>
+        </div>
+        <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-wide mt-4">
+          LEMBAR MONITORING DOKUMEN KONTRAK
+        </h3>
+      </div>
+
+      {/* Document Content - 3 Column Layout */}
+      <div className="grid grid-cols-3 gap-4 text-xs">
+        {/* Column 1 - Identitas Kontrak */}
+        <div className="space-y-3">
+          <div className="bg-slate-100 px-3 py-2 rounded border-l-4 border-slate-900">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">
+              IDENTITAS KONTRAK
+            </h4>
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                Nomor Registrasi Kontrak
+              </p>
+              <p className="font-bold text-slate-900 mt-0.5 leading-snug break-words">
+                {contract.noKontrak}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                Nama Paket Pekerjaan
+              </p>
+              <p className="font-extrabold text-slate-900 text-[13px] mt-0.5 leading-snug break-words">
+                {contract.namaPaket}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                  Tahun Anggaran
+                </p>
+                <p className="font-bold text-slate-900 mt-0.5">
+                  {contract.tahunAnggaran}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                  Sumber Dana
+                </p>
+                <p className="font-bold text-slate-900 mt-0.5 break-words leading-tight">
+                  {contract.sumberDana}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+                Tanggal Kontrak
+              </p>
+              <p className="font-bold text-slate-900 mt-0.5">
+                {formatDate(contract.tanggalKontrak)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Column 2 - Lokasi & Rincian Keuangan */}
+        <div className="space-y-3">
+          <div className="bg-slate-100 px-3 py-2 rounded border-l-4 border-slate-900">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">
+              LOKASI & WILAYAH
+            </h4>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Kab/Kota</p>
+              <p className="font-bold text-slate-900 mt-0.5 break-words leading-tight">{contract.kabupatenKota}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Ruas Jalan</p>
+              <p className="font-bold text-slate-900 mt-0.5 break-words leading-snug">{contract.lokasiRuas}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {contract.panjangEfektif && (
+                <div>
+                  <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Pj. Efektif</p>
+                  <p className="font-bold text-slate-900 mt-0.5">{contract.panjangEfektif}</p>
+                </div>
+              )}
+              {contract.kegiatanPreservasi && (
+                <div>
+                  <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Preservasi</p>
+                  <p className="font-bold text-slate-900 mt-0.5 break-words leading-tight">{contract.kegiatanPreservasi}</p>
+                </div>
+              )}
+            </div>
+            {contract.waktuPemeliharaan && (
+              <div>
+                <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Waktu Pemeliharaan</p>
+                <p className="font-bold text-slate-900 mt-0.5">{contract.waktuPemeliharaan}</p>
+              </div>
+            )}
+          </div>
+          <div className="bg-slate-100 px-3 py-2 rounded border-l-4 border-slate-900 mt-3">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">RINCIAN KEUANGAN</h4>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Anggaran DPA</p>
+              <p className="font-bold text-slate-900 mt-0.5 text-[13px]">{formatRupiah(contract.nilaiHps)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Nilai Kontrak</p>
+              <p className="font-extrabold text-slate-900 mt-0.5 text-[13px]">{formatRupiah(contract.nilaiKontrak)}</p>
+            </div>
+
+        {/* Column 3 - Administrasi & Masa Waktu */}
+        <div className="space-y-3">
+          <div className="bg-slate-100 px-3 py-2 rounded border-l-4 border-slate-900">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">
+              ADMINISTRASI & STAKEHOLDERS
+            </h4>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Penyedia Jasa (Kontraktor)</p>
+              <p className="font-bold text-slate-900 mt-0.5 break-words leading-snug">{contract.kontraktorPelaksana}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Konsultan Pengawas</p>
+              <p className="font-bold text-slate-900 mt-0.5 break-words leading-snug">{contract.konsultanPengawas}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">PPK</p>
+              <p className="font-bold text-slate-900 mt-0.5 break-words leading-snug">{contract.pejabatPembuatKomitmen}</p>
+              {contract.nipPpk && (
+                <p className="text-slate-500 text-[9px] mt-0.5 font-mono">NIP: {contract.nipPpk}</p>
+              )}
+            </div>
+          </div>
+          <div className="bg-slate-100 px-3 py-2 rounded border-l-4 border-slate-900 mt-3">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">MASA WAKTU PELAKSANAAN</h4>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Jangka Waktu</p>
+              <p className="font-bold text-slate-900 mt-0.5">{contract.jangkaWaktu} Hari Kalender</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Tanggal Mulai (SPMK)</p>
+              <p className="font-bold text-slate-900 mt-0.5">{formatDate(contract.tanggalMulai)}</p>
+              {contract.nomorSpmk && (
+                <p className="text-slate-500 text-[9px] mt-0.5 font-mono break-words leading-tight">No. SPMK: {contract.nomorSpmk}</p>
+              )}
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Target Selesai</p>
+              <p className="font-bold text-slate-900 mt-0.5">{formatDate(contract.tanggalSelesai)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Catatan Evaluasi/Rekomendasi - Full Width */}
+      {contract.catatanPekerjaan && (
+        <div className="mt-4 border-t-2 border-slate-200 pt-4">
+          <div className="bg-amber-50 px-3 py-2 rounded border-l-4 border-amber-600 mb-2">
+            <h4 className="font-extrabold text-slate-900 uppercase text-xs tracking-wide">
+              CATATAN EVALUASI / REKOMENDASI LAPANGAN
+            </h4>
+          </div>
+          <div className="text-xs text-slate-700 leading-relaxed px-3 py-2 bg-slate-50 rounded border border-slate-200">
+            {contract.catatanPekerjaan}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="mt-6 pt-4 border-t-2 border-slate-900 text-center">
+        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+          Lembar Monitoring Dokumen Kontrak
+        </p>
+        <p className="text-[9px] text-slate-500 uppercase tracking-wide">
+          Bidang Bina Marga – Dinas PUPR Provinsi Nusa Tenggara Timur
+        </p>
+      </div>
+    </div>
+  );
+}
+

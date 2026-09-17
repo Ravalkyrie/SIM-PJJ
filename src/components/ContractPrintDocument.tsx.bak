@@ -1,0 +1,360 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import { KontrakFisik } from '../types';
+
+interface ContractPrintDocumentProps {
+  contract: KontrakFisik;
+}
+
+export default function ContractPrintDocument({ contract }: ContractPrintDocumentProps) {
+  // Format currency with safe handling
+  const formatRupiah = (value: number | undefined): string => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return 'Rp -';
+    }
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Format date to Indonesian format
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+  };
+
+  return (
+    <div 
+      id="print-document" 
+      style={{
+        width: '297mm',
+        height: '210mm',
+        margin: '0 auto',
+        padding: '10mm 12mm',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        pageBreakInside: 'avoid',
+        breakInside: 'avoid',
+        backgroundColor: '#ffffff',
+      }}
+    >
+      {/* Header - Same as existing UI with RGB colors */}
+      <div style={{
+        borderBottom: '2px solid #0f172a',
+        paddingBottom: '10px',
+        marginBottom: '12px',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '8px',
+        }}>
+          <div style={{
+            width: '56px',
+            height: '56px',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            padding: '2px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            border: '1px solid #cbd5e1',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          }}>
+            <img 
+              src="https://images.seeklogo.com/logo-png/35/1/pu-logo-png_seeklogo-355609.png" 
+              alt="Logo PU" 
+              style={{
+                width: '48px',
+                height: '48px',
+                objectFit: 'contain',
+              }}
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#d97706',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              lineHeight: 1.2,
+              margin: 0,
+            }}>
+              Dinas Pekerjaan Umum dan Perumahan Rakyat
+            </p>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 800,
+              color: '#0f172a',
+              letterSpacing: '-0.025em',
+              lineHeight: 1.2,
+              margin: '2px 0 0 0',
+            }}>
+              BIDANG BINA MARGA PROVINSI NTT
+            </h2>
+            <p style={{
+              fontSize: '11px',
+              fontFamily: 'ui-monospace, monospace',
+              color: '#64748b',
+              marginTop: '4px',
+              margin: 0,
+            }}>
+              Lembar Monitoring Dokumen Kontrak Pekerjaan Fisik
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Identitas Kontrak Header - Same as existing UI with RGB colors */}
+      <div style={{
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        borderRadius: '4px',
+        padding: '10px 14px',
+        marginBottom: '12px',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '4px',
+            margin: 0,
+          }}>
+            Nomor Registrasi Kontrak
+          </p>
+          <p style={{
+            fontFamily: 'ui-monospace, monospace',
+            fontSize: '15px',
+            fontWeight: 700,
+            color: '#1e293b',
+            lineHeight: 1.2,
+            marginTop: '4px',
+            margin: 0,
+          }}>
+            {contract.noKontrak}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <span style={{
+            fontSize: '13px',
+            fontWeight: 700,
+            backgroundColor: '#ffffff',
+            color: '#334155',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            border: '1px solid #e2e8f0',
+            whiteSpace: 'nowrap',
+          }}>
+            TA {contract.tahunAnggaran}
+          </span>
+          <span style={{
+            fontSize: '13px',
+            fontWeight: 700,
+            backgroundColor: '#fbbf24',
+            color: '#0a0a0a',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            whiteSpace: 'nowrap',
+          }}>
+            DANA {contract.sumberDana}
+          </span>
+        </div>
+      </div>
+
+      {/* Nama Paket Pekerjaan - Emphasized same as existing UI */}
+      <div className="mb-4">
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+          Nama Paket Pekerjaan
+        </h3>
+        <p className="text-xl font-extrabold text-slate-900 leading-tight">
+          {contract.namaPaket}
+        </p>
+      </div>
+
+      {/* Main Content Grid - 2 columns like existing UI */}
+      <div className="grid grid-cols-2 gap-5">
+        {/* Left Column */}
+        <div className="space-y-4">
+          {/* Lokasi & Wilayah - Same structure as existing UI */}
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+              Lokasi & Wilayah
+            </h4>
+            <div className="space-y-2 bg-slate-50 px-4 py-3 rounded border border-slate-200">
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Kab/Kota</span>
+                <span className="col-span-2 text-sm font-bold text-slate-800">: {contract.kabupatenKota}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Ruas Jalan</span>
+                <span className="col-span-2 text-sm font-medium text-slate-700 leading-tight">: {contract.lokasiRuas}</span>
+              </div>
+              {contract.panjangEfektif && (
+                <div className="grid grid-cols-3 gap-1">
+                  <span className="text-xs text-slate-500 font-semibold">Pj. Efektif</span>
+                  <span className="col-span-2 text-sm font-bold text-indigo-600">: {contract.panjangEfektif}</span>
+                </div>
+              )}
+              {contract.kegiatanPreservasi && (
+                <div className="grid grid-cols-3 gap-1">
+                  <span className="text-xs text-slate-500 font-semibold">Preservasi</span>
+                  <span className="col-span-2 text-sm font-bold text-amber-700">: {contract.kegiatanPreservasi}</span>
+                </div>
+              )}
+              {contract.waktuPemeliharaan && (
+                <div className="grid grid-cols-3 gap-1">
+                  <span className="text-xs text-slate-500 font-semibold">Wkt. Pemeliharaan</span>
+                  <span className="col-span-2 text-sm font-bold text-emerald-700">: {contract.waktuPemeliharaan}</span>
+                </div>
+              )}
+              {contract.desaKelurahan && (
+                <div className="grid grid-cols-3 gap-1">
+                  <span className="text-xs text-slate-500 font-semibold">Desa/Kelurahan</span>
+                  <span className="col-span-2 text-sm font-medium text-slate-700 leading-tight">: {contract.desaKelurahan}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Administrasi & Stakeholders - Same structure as existing UI */}
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <Briefcase className="w-4 h-4 text-indigo-600" />
+              Administrasi Pekerjaan & Stakeholders
+            </h4>
+            <div className="space-y-2 bg-slate-50 px-4 py-3 rounded border border-slate-200">
+              <div>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">
+                  Penyedia Jasa (Kontraktor)
+                </p>
+                <p className="text-sm font-bold text-slate-900 leading-tight">
+                  {contract.kontraktorPelaksana}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">
+                  Konsultan Pengawas
+                </p>
+                <p className="text-sm font-bold text-slate-900 leading-tight">
+                  {contract.konsultanPengawas}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">
+                  PPK
+                </p>
+                <p className="text-sm font-bold text-slate-900 leading-tight">
+                  {contract.pejabatPembuatKomitmen}
+                </p>
+                {contract.nipPpk && (
+                  <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                    NIP: {contract.nipPpk}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-4">
+          {/* Rincian Keuangan - Same structure as existing UI */}
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <Coins className="w-4 h-4 text-emerald-600 shrink-0" />
+              Rincian Keuangan
+            </h4>
+            <div className="space-y-2 bg-slate-50 px-4 py-3 rounded border border-slate-200">
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Anggaran DPA</span>
+                <span className="col-span-2 text-sm font-bold text-emerald-600">: {formatRupiah(contract.anggaranDpa)}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Nilai Kontrak</span>
+                <span className="col-span-2 text-base font-extrabold text-slate-900">: {formatRupiah(contract.nilaiKontrak)}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Jenis Pekerjaan</span>
+                <span className="col-span-2 text-sm font-bold text-slate-900 leading-tight">: {contract.jenisPekerjaan}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Masa Waktu Pelaksanaan - Same structure as existing UI */}
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <Clock className="w-4 h-4 text-amber-500" />
+              Masa Waktu Pelaksanaan
+            </h4>
+            <div className="space-y-2 bg-slate-50 px-4 py-3 rounded border border-slate-200">
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Jangka Waktu</span>
+                <span className="col-span-2 text-sm font-bold text-slate-900">: {contract.jangkaWaktu} Hari Kalender</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Tanggal Mulai (SPMK)</span>
+                <span className="col-span-2 text-sm font-bold text-slate-900">: {formatDate(contract.tanggalMulai)}</span>
+              </div>
+              {contract.nomorSpmk && (
+                <div className="col-span-3">
+                  <p className="text-xs text-slate-500 font-mono leading-tight">
+                    No. SPMK: {contract.nomorSpmk}
+                  </p>
+                </div>
+              )}
+              <div className="grid grid-cols-3 gap-1">
+                <span className="text-xs text-slate-500 font-semibold">Target Selesai</span>
+                <span className="col-span-2 text-sm font-bold text-slate-900">: {formatDate(contract.tanggalSelesai)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Catatan Evaluasi/Rekomendasi - Full width, same as existing UI */}
+      {contract.catatanPekerjaan && (
+        <div className="mt-4 pt-3 border-t-2 border-slate-100">
+          <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">
+            Catatan Evaluasi / Rekomendasi Lapangan
+          </h4>
+          <div className="bg-amber-50/50 border border-amber-200 px-4 py-3 rounded text-sm text-slate-700 leading-relaxed font-sans">
+            {contract.catatanPekerjaan}
+          </div>
+        </div>
+      )}
+
+      {/* Footer - Same as existing UI */}
+      <div className="mt-auto pt-3 border-t border-slate-300 text-center">
+        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+          Lembar Monitoring Dokumen Kontrak
+        </p>
+        <p className="text-xs text-slate-500 uppercase tracking-wide">
+          Bidang Bina Marga – Dinas PUPR Provinsi Nusa Tenggara Timur
+        </p>
+      </div>
+    </div>
+  );
+}

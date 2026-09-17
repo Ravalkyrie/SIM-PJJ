@@ -1,0 +1,144 @@
+================================================================
+   TUTORIAL DEPLOY KE GITHUB PAGES - BAGIAN 2
+   TROUBLESHOOTING & TIPS
+================================================================
+
+╔══════════════════════════════════════════════════════════════╗  
+║  TROUBLESHOOTING                                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLEM 1: Masih 404 atau Blank Screen
+---------------------------------------
+SOLUSI:
+1. Clear browser cache:
+   Chrome: Ctrl + Shift + Delete
+   Pilih "Cached images and files"
+   Time range: All time
+   Klik "Clear data"
+
+2. Force refresh: Ctrl + F5
+
+3. Tunggu 5-10 menit (GitHub Pages propagasi)
+
+4. Cek GitHub Pages status:
+   https://github.com/Ravalkyrie/SIM-PJJ/settings/pages
+   Pastikan: "Your site is live at..."
+
+
+PROBLEM 2: Git Push Gagal
+--------------------------
+ERROR: "Updates were rejected"
+SOLUSI:
+   git pull origin main
+   git push origin main
+
+ERROR: "Authentication failed"
+SOLUSI:
+   Perlu Personal Access Token (PAT):
+   1. https://github.com/settings/tokens
+   2. Generate new token (classic)
+   3. Scope: repo
+   4. Copy token
+   5. Gunakan token sebagai password
+
+
+PROBLEM 3: npm run build Gagal
+-------------------------------
+ERROR: "command not found"
+SOLUSI:
+   npm install
+   npm run build
+
+
+PROBLEM 4: npm run deploy Gagal
+--------------------------------
+ERROR: "gh-pages not found"
+SOLUSI:
+   npm install gh-pages --save-dev
+   npm run deploy
+
+
+PROBLEM 5: Firebase Error
+--------------------------
+ERROR: "Permission denied"
+SOLUSI:
+   1. Firebase Console: https://console.firebase.google.com
+   2. Authentication → Settings → Authorized domains
+   3. Tambahkan: ravalkyrie.github.io
+   4. Tunggu 5 menit
+   5. Coba akses lagi
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  DEPLOY UPDATE DI MASA DEPAN                                 ║
+╚══════════════════════════════════════════════════════════════╝
+
+Jika mengubah code:
+
+1. Edit code di VS Code
+2. Test lokal: npm run dev
+3. Commit:
+   git add .
+   git commit -m "Deskripsi perubahan"
+   git push origin main
+4. Deploy:
+   npm run build
+   npm run deploy
+5. Tunggu 2-3 menit
+6. Test di browser
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  QUICK REFERENCE                                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+DEPLOY LENGKAP:
+cd "C:\New folder\Manajemen"
+git add .
+git commit -m "Update"
+git push origin main
+npm run build
+npm run deploy
+
+DEPLOY CEPAT (sudah commit):
+npm run build && npm run deploy
+
+CEK STATUS:
+git status
+git log --oneline
+
+ROLLBACK:
+git log --oneline
+git revert <commit-hash>
+npm run deploy
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  CATATAN PENTING                                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+1. URL pakai # (hash): /#/dashboard
+   Ini NORMAL untuk GitHub Pages!
+
+2. Tunggu 2-3 menit setiap deploy
+
+3. Clear cache jika ada masalah
+
+4. Jangan hapus folder .git
+
+5. Jangan edit file di folder dist
+
+6. Test di lokal dulu: npm run dev
+
+7. Backup Firebase rutin
+
+
+================================================================
+SELAMAT! DEPLOY SELESAI 🚀
+================================================================
+
+Website live di:
+https://ravalkyrie.github.io/SIM-PJJ/
+
+Last Updated: 2026-09-16
+================================================================

@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 /* Highlight animation for section scroll */
 @keyframes highlight-pulse {
   0% {

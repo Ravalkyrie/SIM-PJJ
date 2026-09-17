@@ -56,7 +56,7 @@ export interface KontrakFisik {
 export interface ActivityLog {
   id: string;
   timestamp: string;
-  actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'ADD_ADENDUM' | 'ADD_LAMPIRAN' | 'DELETE_LAMPIRAN' | 'UPDATE_PROGRESS';
+  actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'ADD_ADENDUM' | 'UPDATE_ADENDUM' | 'DELETE_ADENDUM' | 'ADD_LAMPIRAN' | 'DELETE_LAMPIRAN' | 'UPDATE_PROGRESS';
   contractId: string;
   contractNo: string;
   contractName: string;
@@ -105,4 +105,38 @@ export const KABUPATEN_PRESETS = [
 
 // Super Admin Email - Cannot be downgraded
 export const SUPER_ADMIN_EMAIL = 'sagalaarief@gmail.com';
+
+// ==========================================
+// URAIAN PEKERJAAN INTERFACES
+// ==========================================
+
+export interface ItemPekerjaan {
+  id: string;
+  kodeItem: string;          // e.g., "2.1.(1)", "6.3.(4)"
+  uraian: string;            // e.g., "Galian untuk Drainase"
+  satuan: string;            // e.g., "M3", "Ton", "M2"
+  hargaSatuan: number;       // e.g., 70000
+  volume: number;            // e.g., 266 (support decimal)
+  jumlahHarga: number;       // AUTO: hargaSatuan × volume
+  bobot: number;             // AUTO: (jumlahHarga / totalNilaiPekerjaan) × 100
+}
+
+export interface DivisiPekerjaan {
+  id: string;
+  nomorDivisi: number;       // 1-10 ONLY, cannot be changed after creation
+  namaDivisi: string;        // User input, editable (e.g., "DRAINASE")
+  items: ItemPekerjaan[];
+  totalDivisi?: number;      // AUTO: SUM of all items jumlahHarga
+}
+
+export interface UraianPekerjaan {
+  id: string;
+  contractId: string;        // MANDATORY link to KontrakFisik.id
+  divisiList: DivisiPekerjaan[];
+  totalDivisi?: number;      // AUTO: count of divisi
+  totalItem?: number;        // AUTO: count of all items across all divisi
+  totalNilaiPekerjaan?: number; // AUTO: SUM of all divisi totalDivisi
+  createdAt?: string;
+  updatedAt?: string;
+}
 
