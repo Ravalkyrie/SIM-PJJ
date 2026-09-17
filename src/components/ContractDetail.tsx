@@ -454,10 +454,8 @@ export default function ContractDetail({
         </div>
       )}
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left 2 Columns: Contract Document Card */}
-        <div className="lg:col-span-2 space-y-4">
+      {/* Main Content - Single Column */}
+      <div className="space-y-4">
           {/* Official Document Sheet */}
           <div id="document-sheet" className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
             {/* Kop Surat / Government Accent */}
@@ -634,103 +632,7 @@ export default function ContractDetail({
                 </h3>
                 <p className="text-[11px] text-slate-500 contract-detail-small">Riwayat amandemen pekerjaan tambah/kurang atau kompensasi waktu</p>
               </div>
-              {userRole !== 'visitor' && (
-                <button
-                  id="btn-add-adendum"
-                  onClick={() => {
-                    if (showAdendumForm && editingAdendumId) {
-                      handleCancelEdit();
-                    } else {
-                      setShowAdendumForm(!showAdendumForm);
-                      setEditingAdendumId(null);
-                    }
-                  }}
-                  className="flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-wider cursor-pointer transition"
-                >
-                  {showAdendumForm ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                  {showAdendumForm ? "Batal" : "Tambah Adendum"}
-                </button>
-              )}
             </div>
-
-            {/* Inline Adendum Form */}
-            {showAdendumForm && (
-              <form id="adendum-form" onSubmit={handleSaveAdendum} className="bg-slate-50 border border-slate-200 rounded p-3 space-y-3 animate-fade-in text-xs">
-                {errorAdendum && (
-                  <div className="bg-rose-50 border border-rose-200 text-rose-800 p-2.5 rounded text-[11px] font-medium animate-slide-in flex items-center gap-1.5">
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
-                    <span>{errorAdendum}</span>
-                  </div>
-                )}
-                <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  {editingAdendumId ? 'Edit Adendum' : 'Formulir Input Adendum I dan Adendum II'}
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500">Jenis Adendum</label>
-                    <select
-                      value={jenisAdendum}
-                      onChange={(e) => setJenisAdendum(e.target.value as 'Adendum I' | 'Adendum II')}
-                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none font-semibold"
-                      required
-                    >
-                      <option value="Adendum I">Adendum I</option>
-                      <option value="Adendum II">Adendum II</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500">Nomor Adendum</label>
-                    <input
-                      type="text"
-                      value={noAdendum}
-                      onChange={(e) => setNoAdendum(e.target.value)}
-                      placeholder="Contoh: 602/DBM/CTR/.../ADD-01"
-                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500">Tanggal Adendum</label>
-                    <input
-                      type="date"
-                      value={tanggalAdendum}
-                      onChange={(e) => setTanggalAdendum(e.target.value)}
-                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none font-sans"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500">Perubahan Waktu (Hari Kalender)</label>
-                    <input
-                      type="number"
-                      value={perubahanWaktu}
-                      onChange={(e) => setPerubahanWaktu(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="Jumlah hari penambahan waktu"
-                      className="w-full px-2 py-1.5 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-500">Keterangan Perubahan</label>
-                  <textarea
-                    value={keteranganAdendum}
-                    onChange={(e) => setKeteranganAdendum(e.target.value)}
-                    rows={2}
-                    placeholder="Sebab perubahan spesifikasi teknis / utilitas..."
-                    className="w-full p-2 text-xs bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none resize-none"
-                    required
-                  ></textarea>
-                </div>
-                <div className="flex justify-end gap-2 pt-1">
-                  <button
-                    type="submit"
-                    className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded transition cursor-pointer"
-                  >
-                    {editingAdendumId ? 'Simpan Perubahan' : 'Simpan Adendum'}
-                  </button>
-                </div>
-              </form>
-            )}
 
             {/* Adendums list */}
             {contract.adendum.length === 0 ? (
@@ -767,25 +669,6 @@ export default function ContractDetail({
                       )}
                     </div>
 
-                    {/* Edit and Delete Buttons */}
-                    {userRole !== 'visitor' && (
-                      <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100">
-                        <button
-                          onClick={() => handleEditAdendum(add)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded transition cursor-pointer"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => setAdendumToDelete(add)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Hapus
-                        </button>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -799,99 +682,9 @@ export default function ContractDetail({
                 <Paperclip className="w-4 h-4 text-indigo-600" />
                 Berkas Kontrak Digital
               </h3>
-              {userRole !== 'visitor' && (
-                <button
-                  id="btn-add-file"
-                  onClick={() => setShowUploadForm(!showUploadForm)}
-                  className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
-                >
-                  {showUploadForm ? "Batal" : "+ Tambah Link"}
-                </button>
-              )}
             </div>
 
-            {/* Document Upload Form (URL Input) */}
-            {showUploadForm && (
-              <form id="upload-form" onSubmit={handleSaveUpload} className="bg-slate-50 border border-slate-200 rounded p-3 space-y-3 text-[11px] animate-fade-in">
-                {errorUpload && (
-                  <div className="bg-rose-50 border border-rose-200 text-rose-800 p-2 text-[10px] font-medium animate-slide-in flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
-                    <span>{errorUpload}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center">
-                  <p className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Tambah Tautan Berkas Digital</p>
-                </div>
-                
-                {/* Nama Berkas */}
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-600">Nama Berkas / Dokumen:</label>
-                  <input
-                    type="text"
-                    value={namaFile}
-                    onChange={(e) => setNamaFile(e.target.value)}
-                    placeholder="Contoh: Hasil Scan Kontrak PUPR, Gambar Kerja MC 0, dll."
-                    className="w-full p-1.5 bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none text-slate-800"
-                    required
-                  />
-                </div>
-
-                {/* Tautan URL */}
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-600">Tautan / URL Dokumen (Google Drive, Dropbox, dll):</label>
-                  <input
-                    type="text"
-                    value={linkUrl}
-                    onChange={(e) => setLinkUrl(e.target.value)}
-                    placeholder="Contoh: https://drive.google.com/..."
-                    className="w-full p-1.5 bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none text-slate-800"
-                    required
-                  />
-                </div>
-
-                {/* Document Type select */}
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-600">Kategori Berkas:</label>
-                  <select
-                    value={tipeDokumen}
-                    onChange={(e) => setTipeDokumen(e.target.value)}
-                    className="w-full p-1.5 bg-white border border-slate-200 rounded focus:ring-1 focus:ring-amber-500 outline-none"
-                  >
-                    <option value="Dokumen Kontrak">Dokumen Kontrak</option>
-                    <option value="PCM">PCM (Pre Construction Meeting)</option>
-                    <option value="RMK">RMK (Rencana Mutu Kontrak)</option>
-                    <option value="BACK UP MC 0%">BACK UP MC 0%</option>
-                    <option value="Shop Drawing">Shop Drawing</option>
-                    <option value="Justifikasi Teknis">Justifikasi Teknis</option>
-                    <option value="Laporan Harian">Laporan Harian</option>
-                    <option value="Laporan Bulanan & mingguan">Laporan Bulanan & Mingguan</option>
-                    <option value="Back Up Data Kuantitas">Back Up Data Kuantitas</option>
-                    <option value="Addendum I">Addendum I</option>
-                    <option value="Addendum II">Addendum II</option>
-                    <option value="Jaminan">Jaminan</option>
-                    <option value="JMF">JMF (Job Mix Formula)</option>
-                    <option value="DMF">DMF (Design Mix Formula)</option>
-                    <option value="JMD">JMD (Job Mix Design)</option>
-                    <option value="Back Up Quality">Back Up Quality</option>
-                    <option value="Back Up Final Quality">Back Up Final Quality</option>
-                    <option value="As Built Drawing">As Built Drawing</option>
-                    <option value="Request Ijin Kerja">Request Ijin Kerja</option>
-                    <option value="Sertifikat Bulanan">Sertifikat Bulanan</option>
-                    <option value="Berita Acara PHO">Berita Acara PHO</option>
-                    <option value="Dokumen Pelaksanaan 0% 50% 100%">Dokumen Pelaksanaan 0% 50% 100%</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded transition cursor-pointer text-xs shadow-sm flex items-center justify-center gap-1.5"
-                >
-                  Simpan Tautan Berkas
-                </button>
-              </form>
-            )}
-
-            {/* List of Files */}
+            {/* Lampiran List */}
             {contract.lampiran.length === 0 ? (
               <p className="text-[11px] text-slate-400 italic text-center py-4 bg-slate-50 border border-slate-200 border-dashed rounded">
                 Belum ada dokumen pindaian (PDF) yang diunggah.
@@ -1012,17 +805,6 @@ export default function ContractDetail({
                                     Buka Link
                                   </a>
                                 )}
-                                
-                                {userRole !== 'visitor' && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteFile(lamp)}
-                                    className="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-700 border border-transparent hover:border-rose-150 rounded transition cursor-pointer shrink-0"
-                                    title="Hapus Berkas"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -1034,10 +816,7 @@ export default function ContractDetail({
               );
             })()}
           </div>
-        </div>
 
-        {/* Right Column: Execution Tracking & Attachments */}
-        <div className="space-y-4">
           {/* Interactive Progress Tracking */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-4">
             <div className="flex justify-between items-center pb-1">
@@ -1046,37 +825,35 @@ export default function ContractDetail({
                 Progres & Status Real-time
               </h3>
               {userRole !== 'visitor' && (
-                <>
-                  {!isUpdatingProgress ? (
+                !isUpdatingProgress ? (
+                  <button
+                    onClick={() => {
+                      setLocalFisik(contract.progresFisik);
+                      setLocalKeuangan(contract.progresKeuangan);
+                      setLocalStatus(contract.status);
+                      setLocalCatatan(contract.catatanPekerjaan);
+                      setIsUpdatingProgress(true);
+                    }}
+                    className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <Edit className="w-3 h-3 text-amber-500" /> Perbarui
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => {
-                        setLocalFisik(contract.progresFisik);
-                        setLocalKeuangan(contract.progresKeuangan);
-                        setLocalStatus(contract.status);
-                        setLocalCatatan(contract.catatanPekerjaan);
-                        setIsUpdatingProgress(true);
-                      }}
-                      className="text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
+                      onClick={() => setIsUpdatingProgress(false)}
+                      className="text-[10px] text-slate-400 hover:text-slate-600 font-bold uppercase tracking-wider"
                     >
-                      <Edit className="w-3 h-3 text-amber-500" /> Perbarui
+                      Batal
                     </button>
-                  ) : (
-                    <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsUpdatingProgress(false)}
-                    className="text-[10px] text-slate-400 hover:text-slate-600 font-bold uppercase tracking-wider"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleSaveProgress}
-                    className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase tracking-wider"
-                  >
-                    Simpan
-                  </button>
-                </div>
-              )}
-                </>
+                    <button
+                      onClick={handleSaveProgress}
+                      className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase tracking-wider"
+                    >
+                      Simpan
+                    </button>
+                  </div>
+                )
               )}
             </div>
 
@@ -1240,7 +1017,6 @@ export default function ContractDetail({
               </div>
             )}
           </div>
-        </div>
       </div>
 
       {/* Print Preview Modal */}

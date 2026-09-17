@@ -8,7 +8,7 @@ export interface DokumenLampiran {
   namaFile: string;
   tipeDokumen: string;
   tanggalUpload: string;
-  ukuranFile: string;
+  ukuranFile?: string;
   googleDriveFileId?: string;
   googleDriveUrl?: string;
 }

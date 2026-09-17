@@ -38,8 +38,8 @@ export default function ContractPrintPreview({ contract, uraianPekerjaan, onClos
       await Promise.all(
         Array.from(images).map((img) => {
           if (img.complete) return Promise.resolve();
-          return new Promise((resolve, reject) => {
-            img.onload = resolve;
+          return new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
             img.onerror = reject;
             setTimeout(() => resolve(), 5000);
           });

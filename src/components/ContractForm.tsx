@@ -4,10 +4,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KontrakFisik, KABUPATEN_PRESETS, UraianPekerjaan } from '../types';
+import { KontrakFisik, KABUPATEN_PRESETS, UraianPekerjaan, AdendumKontrak, DokumenLampiran } from '../types';
 import { FileText, Coins, MapPin, Calendar, Clock, User, Check, ArrowLeft, RefreshCcw, AlertTriangle } from 'lucide-react';
 import { createEmptyUraianPekerjaan } from '../lib/uraianPekerjaan';
 import UraianPekerjaanFormSection from './UraianPekerjaanFormSection';
+import AdendumFormSection from './AdendumFormSection';
+import BerkasDigitalFormSection from './BerkasDigitalFormSection';
 
 interface ContractFormProps {
   initialContract?: KontrakFisik;
@@ -67,6 +69,10 @@ export default function ContractForm({ initialContract, initialUraianPekerjaan, 
     return createEmptyUraianPekerjaan(contractId);
   });
 
+  // Adendum & Lampiran State
+  const [adendumList, setAdendumList] = useState<AdendumKontrak[]>([]);
+  const [lampiranList, setLampiranList] = useState<DokumenLampiran[]>([]);
+
   // Auto calculate target completion date
   useEffect(() => {
     if (tanggalMulai && jangkaWaktu && typeof jangkaWaktu === 'number') {
@@ -104,6 +110,8 @@ export default function ContractForm({ initialContract, initialUraianPekerjaan, 
       setCatatanPekerjaan(initialContract.catatanPekerjaan);
       setKegiatanPreservasi(initialContract.kegiatanPreservasi || '');
       setWaktuPemeliharaan(initialContract.waktuPemeliharaan || '');
+      setAdendumList(initialContract.adendum || []);
+      setLampiranList(initialContract.lampiran || []);
     } else {
       setNoKontrak('');
       setTanggalKontrak('');
@@ -173,8 +181,8 @@ export default function ContractForm({ initialContract, initialUraianPekerjaan, 
       kegiatanPreservasi,
       panjangEfektif: panjangEfektif || '',
       waktuPemeliharaan: waktuPemeliharaan || undefined,
-      adendum: initialContract?.adendum || [],
-      lampiran: initialContract?.lampiran || []
+      adendum: adendumList,
+      lampiran: lampiranList
     };
 
     // Update uraianPekerjaan contractId with final contract id
@@ -625,9 +633,21 @@ export default function ContractForm({ initialContract, initialUraianPekerjaan, 
           onChange={setUraianPekerjaan}
         />
 
+        {/* Section H: Daftar Adendum Kontrak */}
+        <AdendumFormSection
+          adendumList={adendumList}
+          onChange={setAdendumList}
+        />
+
+        {/* Section I: Berkas Kontrak Digital */}
+        <BerkasDigitalFormSection
+          lampiranList={lampiranList}
+          onChange={setLampiranList}
+        />
+
         {/* Catatan / Keterangan Tambahan */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-xs p-4 space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">H. Keterangan / Catatan Tambahan (Evaluasi Lapangan)</label>
+          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">J. Keterangan / Catatan Tambahan (Evaluasi Lapangan)</label>
           <textarea
             value={catatanPekerjaan}
             onChange={(e) => setCatatanPekerjaan(e.target.value)}
