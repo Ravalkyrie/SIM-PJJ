@@ -30,6 +30,6 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
-    base: process.env.NODE_ENV === 'production' ? '/SIM-PJJ/' : '/',
+    base: '/SIM-PJJ/',
   };
 });
