@@ -50,7 +50,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
         pageBreakInside: 'avoid',
         breakInside: 'avoid',
         backgroundColor: '#ffffff',
-        color: '#0f172a',
+        color: '#000000',
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
@@ -95,7 +95,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <p style={{
               fontSize: '11px',
               fontWeight: 700,
-              color: '#d97706',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               lineHeight: 1.2,
@@ -106,7 +106,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h2 style={{
               fontSize: '20px',
               fontWeight: 800,
-              color: '#0f172a',
+              color: '#000000',
               letterSpacing: '-0.025em',
               lineHeight: 1.2,
               margin: '4px 0 0 0',
@@ -116,7 +116,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <p style={{
               fontSize: '10px',
               fontFamily: 'ui-monospace, monospace',
-              color: '#64748b',
+              color: '#000000',
               letterSpacing: '0.05em',
               margin: '4px 0 0 0',
             }}>
@@ -142,7 +142,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
           <p style={{
             fontSize: '11px',
             fontWeight: 700,
-            color: '#64748b',
+            color: '#000000',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             margin: '0 0 4px 0',
@@ -153,7 +153,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             fontFamily: 'ui-monospace, monospace',
             fontSize: '15px',
             fontWeight: 700,
-            color: '#1e293b',
+            color: '#000000',
             lineHeight: 1.2,
             margin: 0,
           }}>
@@ -165,7 +165,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             fontSize: '12px',
             fontWeight: 700,
             backgroundColor: '#ffffff',
-            color: '#334155',
+            color: '#000000',
             padding: '6px 12px',
             borderRadius: '4px',
             border: '1px solid #e2e8f0',
@@ -177,7 +177,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             fontSize: '12px',
             fontWeight: 700,
             backgroundColor: '#fbbf24',
-            color: '#0a0a0a',
+            color: '#000000',
             padding: '6px 12px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
@@ -192,7 +192,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
         <h3 style={{
           fontSize: '11px',
           fontWeight: 700,
-          color: '#94a3b8',
+          color: '#000000',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
           margin: '0 0 4px 0',
@@ -202,7 +202,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
         <p style={{
           fontSize: '28px',
           fontWeight: 800,
-          color: '#0f172a',
+          color: '#000000',
           lineHeight: 1.3,
           margin: 0,
           maxWidth: '100%',
@@ -221,7 +221,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h4 style={{
               fontSize: '13px',
               fontWeight: 700,
-              color: '#1e293b',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               margin: '0 0 6px 0',
@@ -236,29 +236,29 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px' }}>Kab/Kota</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {contract.kabupatenKota}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px' }}>Kab/Kota</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {contract.kabupatenKota}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px', flexShrink: 0 }}>Ruas Jalan</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', lineHeight: 1.4 }}>: {contract.lokasiRuas}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px', flexShrink: 0 }}>Ruas Jalan</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000', lineHeight: 1.4 }}>: {contract.lokasiRuas}</span>
                 </div>
                 {contract.panjangEfektif && (
                   <div style={{ display: 'flex' }}>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px' }}>Pj. Efektif</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {contract.panjangEfektif}</span>
+                    <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px' }}>Pj. Efektif</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {contract.panjangEfektif}</span>
                   </div>
                 )}
                 {contract.kegiatanPreservasi && (
                   <div style={{ display: 'flex' }}>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px' }}>Preservasi</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {contract.kegiatanPreservasi}</span>
+                    <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px' }}>Preservasi</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {contract.kegiatanPreservasi}</span>
                   </div>
                 )}
                 {contract.waktuPemeliharaan && (
                   <div style={{ display: 'flex' }}>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px' }}>Wkt. Pemeliharaan</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>:  {contract.waktuPemeliharaan}</span>
+                    <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px' }}>Wkt. Pemeliharaan</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>:  {contract.waktuPemeliharaan}</span>
                   </div>
                 )}
               </div>
@@ -270,7 +270,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h4 style={{
               fontSize: '13px',
               fontWeight: 700,
-              color: '#1e293b',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               margin: '0 0 6px 0',
@@ -285,29 +285,29 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p style={{ fontSize: '11px', color: '#000000', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Penyedia Jasa (Kontraktor)
                   </p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0, lineHeight: 1.3 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#000000', margin: 0, lineHeight: 1.3 }}>
                     {contract.kontraktorPelaksana}
                   </p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p style={{ fontSize: '11px', color: '#000000', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Konsultan Pengawas
                   </p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0, lineHeight: 1.3 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#000000', margin: 0, lineHeight: 1.3 }}>
                     {contract.konsultanPengawas}
                   </p>
                 </div>
                 <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '2px' }}>
-                  <p style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p style={{ fontSize: '11px', color: '#000000', fontWeight: 600, margin: '0 0 3px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     PPK
                   </p>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: '0 0 2px 0', lineHeight: 1.3 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#000000', margin: '0 0 2px 0', lineHeight: 1.3 }}>
                     {contract.pejabatPembuatKomitmen}
                   </p>
-                  <p style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: '#64748b', margin: 0 }}>
+                  <p style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: '#000000', margin: 0 }}>
                     NIP: {contract.nipPpk}
                   </p>
                 </div>
@@ -323,7 +323,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h4 style={{
               fontSize: '13px',
               fontWeight: 700,
-              color: '#1e293b',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               margin: '0 0 6px 0',
@@ -338,16 +338,16 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '110px' }}>Anggaran DPA</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {formatRupiah(contract.nilaiHps)}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '110px' }}>Anggaran DPA</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {formatRupiah(contract.nilaiHps)}</span>
                 </div>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '110px' }}>Nilai Kontrak</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {formatRupiah(contract.nilaiKontrak)}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '110px' }}>Nilai Kontrak</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {formatRupiah(contract.nilaiKontrak)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '110px', flexShrink: 0 }}>Tanggal Kontrak</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {formatDate(contract.tanggalKontrak)}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '110px', flexShrink: 0 }}>Tanggal Kontrak</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {formatDate(contract.tanggalKontrak)}</span>
                 </div>
               </div>
             </div>
@@ -358,7 +358,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h4 style={{
               fontSize: '13px',
               fontWeight: 700,
-              color: '#1e293b',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               margin: '0 0 6px 0',
@@ -373,17 +373,17 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '140px' }}>Jangka Waktu</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {contract.jangkaWaktu} Hari Kalender</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '140px' }}>Jangka Waktu</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {contract.jangkaWaktu} Hari Kalender</span>
                 </div>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '140px' }}>Tanggal Mulai (SPMK)</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>: {formatDate(contract.tanggalMulai)}</span>
+                  <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '140px' }}>Tanggal Mulai (SPMK)</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000' }}>: {formatDate(contract.tanggalMulai)}</span>
                 </div>
                 {contract.nomorSpmk && (
                   <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '140px', flexShrink: 0 }}>No. SPMK</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', lineHeight: 1.4, wordBreak: 'break-all' }}>: {contract.nomorSpmk}</span>
+                    <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '140px', flexShrink: 0 }}>No. SPMK</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000', lineHeight: 1.4, wordBreak: 'break-all' }}>: {contract.nomorSpmk}</span>
                   </div>
                 )}
               </div>
@@ -395,7 +395,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             <h4 style={{
               fontSize: '13px',
               fontWeight: 700,
-              color: '#1e293b',
+              color: '#000000',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               margin: '0 0 6px 0',
@@ -412,17 +412,17 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {contract.adendum.map((adn, index) => (
                     <div key={adn.id || index} style={{ display: 'flex', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, minWidth: '100px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '12px', color: '#000000', fontWeight: 600, minWidth: '100px', flexShrink: 0 }}>
                         {adn.keterangan && adn.keterangan.includes(':') ? adn.keterangan.split(':')[0] : `ADENDUM ${index + 1}`}
                       </span>
-                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', lineHeight: 1.4, wordBreak: 'break-all' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000', lineHeight: 1.4, wordBreak: 'break-all' }}>
                         : {adn.noAdendum}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0, fontStyle: 'italic' }}>
+                <p style={{ fontSize: '12px', color: '#000000', margin: 0, fontStyle: 'italic' }}>
                   Tidak ada adendum
                 </p>
               )}
@@ -437,7 +437,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
           <h4 style={{
             fontSize: '13px',
             fontWeight: 700,
-            color: '#1e293b',
+            color: '#000000',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             margin: '0 0 6px 0',
@@ -450,7 +450,7 @@ export default function ContractPrintDocument({ contract }: ContractPrintDocumen
             padding: '10px 12px',
             borderRadius: '4px',
             fontSize: '12px',
-            color: '#334155',
+            color: '#000000',
             lineHeight: 1.6,
           }}>
             {contract.catatanPekerjaan}
